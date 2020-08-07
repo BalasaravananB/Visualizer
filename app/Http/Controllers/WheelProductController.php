@@ -20,6 +20,73 @@ use DB;
 
 class WheelProductController extends Controller
 {
+
+
+
+
+
+
+
+
+
+
+    public function getVehicle(Request $request)
+    {
+        // dd($request->all());
+        
+        $vehicle = $this->findVehicle($request);
+        $car_images = null;
+        $wheel = null;
+        $frontback = null;
+        if(@$vehicle->vif != null){
+            $car_images = CarImage::select('car_id','image','color_code')->wherecar_id(@$vehicle->vif)->where('image', 'LIKE', '%.png%')
+            ->with(['CarViflist' => function($query) {
+                $query->select('vif', 'yr','make','model','body','drs','whls');
+
+            },'CarColor'])->first();
+        }
+
+        if($request->wheelpartno){
+            $wheelpro = WheelProduct::with('wheel')->where('partno',$request->wheelpartno)->first(); 
+            // dd($wheelpro->wheel);
+            if($wheelpro->wheel){
+                 $frontback = front_back_path(@$wheelpro->wheel->image);
+            }else{
+                 $frontback = front_back_path(@$wheelpro->prodimage);
+            }
+        }
+        $position=[
+            'front'=>array('left'=>80,'top'=>275,'width'=>90),
+            'back'=>array('left'=>280,'top'=>275,'width'=>70), 
+               
+        ];
+        return [
+                'baseurl'=>asset('/'),
+                'vehicle'=>$vehicle->year_make_model_submodel,
+                'carimage'=>asset($car_images->image),
+                'frontimage'=>asset($frontback),
+                'backimage'=>asset($frontback),
+                'position'=>$position,
+                ];
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     /**
      * Display a listing of the resource.
      *

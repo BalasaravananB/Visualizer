@@ -378,6 +378,7 @@
                 // console.log(typeof result)
                 console.log('After Response',new Date($.now()))
                 boxes = JSON.parse(result.toString())
+
                 console.log('Response Binded ')   
                 var delay = 1000;
                 setTimeout(function() 
