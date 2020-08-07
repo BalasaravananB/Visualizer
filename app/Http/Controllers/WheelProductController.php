@@ -33,11 +33,24 @@ class WheelProductController extends Controller
     public function getVehicle(Request $request)
     {
         // dd($request->all());
+ 
+        $this->validate($request, [ 
+            'year' =>'required|max:255',
+            'make' =>'required|max:255',
+            'model' =>'required|max:255',
+            'submodel' =>'required|max:255',
+            'wheelpartno' =>'required|max:255',  
+        ]);
+try {
 
         $vehicle = $this->findVehicle($request);
         $carimage = null;
         $wheel = null;
         $frontback = null;
+        if($vehicle==null){
+            return ['status'=>false,'message'=>'Vehicle Not Found!'];
+
+        }
         if(@$vehicle->vif != null){
             $car_images = CarImage::select('car_id','image','color_code')->wherecar_id(@$vehicle->vif)->where('image', 'LIKE', '%.png%')
             ->with(['CarViflist' => function($query) {
@@ -50,10 +63,15 @@ class WheelProductController extends Controller
         if($request->wheelpartno){
             $wheelpro = WheelProduct::with('wheel')->where('partno',$request->wheelpartno)->first(); 
             // dd($wheelpro->wheel);
-            if($wheelpro->wheel){
-                 $frontback = front_back_path(@$wheelpro->wheel->image);
+            if($wheelpro){
+                if(@$wheelpro->wheel){
+                     $frontback = front_back_path(@$wheelpro->wheel->image);
+                }else{
+                     $frontback = front_back_path(@$wheelpro->prodimage);
+                }
             }else{
-                 $frontback = front_back_path(@$wheelpro->prodimage);
+
+            return ['status'=>false,'message'=>'Wheel Product Not Found!'];
             }
         }
         $position=[
@@ -61,14 +79,22 @@ class WheelProductController extends Controller
             'back'=>array('left'=>280,'top'=>275,'width'=>70), 
                
         ];
-        return [
+        $data = [
                 'baseurl'=>asset('/'),
                 'vehicle'=>$vehicle->year_make_model_submodel,
                 'carimage'=>$carimage,
                 'frontimage'=>asset($frontback),
                 'backimage'=>asset($frontback),
-                'position'=>$position,
+                'position'=>$position];
+        return [
+            'status'=>true,
+                'data'=>$data,
                 ];
+} catch (Exception $e) {
+    return ['status'=>false,'message'=>'Something went wrong!'];
+}
+
+      
     }
 
 
