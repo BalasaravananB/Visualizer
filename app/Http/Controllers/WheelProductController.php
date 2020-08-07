@@ -33,9 +33,9 @@ class WheelProductController extends Controller
     public function getVehicle(Request $request)
     {
         // dd($request->all());
-        
+
         $vehicle = $this->findVehicle($request);
-        $car_images = null;
+        $carimage = null;
         $wheel = null;
         $frontback = null;
         if(@$vehicle->vif != null){
@@ -44,6 +44,7 @@ class WheelProductController extends Controller
                 $query->select('vif', 'yr','make','model','body','drs','whls');
 
             },'CarColor'])->first();
+            $carimage = asset($car_images->image);
         }
 
         if($request->wheelpartno){
@@ -63,7 +64,7 @@ class WheelProductController extends Controller
         return [
                 'baseurl'=>asset('/'),
                 'vehicle'=>$vehicle->year_make_model_submodel,
-                'carimage'=>asset($car_images->image),
+                'carimage'=>$carimage,
                 'frontimage'=>asset($frontback),
                 'backimage'=>asset($frontback),
                 'position'=>$position,
