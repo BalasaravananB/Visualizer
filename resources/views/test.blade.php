@@ -276,8 +276,12 @@
             //     doSomethingWith(data); 
             // }); 
             var data={
-               accesstoken:'d2ViNi52dGRucy5uZXQ=XzE='
-
+               year:'2015',
+               make:'Volvo',
+               model:'S60',
+               submodel:'T6 Polestar-4 Dr Sedan',
+               wheelpartno:'N01-2285Z38JB',
+               accesstoken:'Ykc5allXeG9iM04w',
             }
 
 
@@ -294,11 +298,12 @@
                  contentType:contentType,    
                  success:function(data)
                  {
-                    alert("Data from Server"+JSON.stringify(data));
+                  console.log('DATA',data);
+                    // alert("Data from Server"+JSON.stringify(data));
                  },
                  error:function(jqXHR,textStatus,errorThrown)
                  {
-                    alert("You can not send Cross Domain AJAX requests: "+errorThrown);
+                    // alert("You can not send Cross Domain AJAX requests: "+errorThrown);
                  }
                 });
 

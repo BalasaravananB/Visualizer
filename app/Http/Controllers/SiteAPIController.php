@@ -51,7 +51,7 @@ class SiteAPIController extends Controller
 
     public function WheelByVehicle(Request $request)
     {
- 
+
 
     	if(!$this->is_valid){
     		return ['status'=>$this->is_valid,'message'=>$this->error_message];
@@ -130,7 +130,18 @@ class SiteAPIController extends Controller
 		            $position = json_encode($process->getOutput());
 		        }else{
 
-            		return ['status' => false, 'message' => 'Try with Another Wheel / Car !!!'];
+		            $position = ['front' => array(
+		                'left' => 80,
+		                'top' => 275,
+		                'width' => 90
+		            ) , 'back' => array(
+		                'left' => 280,
+		                'top' => 275,
+		                'width' => 70
+		            ) ,
+
+		            ];
+				        	
 		        }
 
 
