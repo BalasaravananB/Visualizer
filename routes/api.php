@@ -13,8 +13,22 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+Route::post('login', 'SiteAPILoginController@login');
+
+Route::group(['middleware' => 'jwt.auth'], function() {
+    
+	Route::post('/WheelByVehicle/{accesstoken}', 'SiteAPIController@WheelByVehicle'); 
+
 });
 
-Route::post('/getVehicle', 'WheelProductController@getVehicle'); 
+
+// Route::middleware('auth:api')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
+
+
+// Route::middleware('jwt.auth')->get('WheelByVehicle', function () {
+//     return auth('api')->user();
+// });
+
+

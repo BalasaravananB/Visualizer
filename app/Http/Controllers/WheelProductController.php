@@ -17,6 +17,7 @@ use Illuminate\Pagination\LengthAwarePaginator as Paginator;
 use App\Http\Controllers\ZipcodeController as Zipcode;
 use Session;
 use DB;
+use Validator;
 
 class WheelProductController extends Controller
 {
@@ -29,73 +30,6 @@ class WheelProductController extends Controller
 
 
 
-
-    public function getVehicle(Request $request)
-    {
-        // dd($request->all());
- 
-        $this->validate($request, [ 
-            'year' =>'required|max:255',
-            'make' =>'required|max:255',
-            'model' =>'required|max:255',
-            'submodel' =>'required|max:255',
-            'wheelpartno' =>'required|max:255',  
-        ]);
-try {
-
-        $vehicle = $this->findVehicle($request);
-        $carimage = null;
-        $wheel = null;
-        $frontback = null;
-        if($vehicle==null){
-            return ['status'=>false,'message'=>'Vehicle Not Found!'];
-
-        }
-        if(@$vehicle->vif != null){
-            $car_images = CarImage::select('car_id','image','color_code')->wherecar_id(@$vehicle->vif)->where('image', 'LIKE', '%.png%')
-            ->with(['CarViflist' => function($query) {
-                $query->select('vif', 'yr','make','model','body','drs','whls');
-
-            },'CarColor'])->first();
-            $carimage = asset($car_images->image);
-        }
-
-        if($request->wheelpartno){
-            $wheelpro = WheelProduct::with('wheel')->where('partno',$request->wheelpartno)->first(); 
-            // dd($wheelpro->wheel);
-            if($wheelpro){
-                if(@$wheelpro->wheel){
-                     $frontback = front_back_path(@$wheelpro->wheel->image);
-                }else{
-                     $frontback = front_back_path(@$wheelpro->prodimage);
-                }
-            }else{
-
-            return ['status'=>false,'message'=>'Wheel Product Not Found!'];
-            }
-        }
-        $position=[
-            'front'=>array('left'=>80,'top'=>275,'width'=>90),
-            'back'=>array('left'=>280,'top'=>275,'width'=>70), 
-               
-        ];
-        $data = [
-                'baseurl'=>asset('/'),
-                'vehicle'=>$vehicle->year_make_model_submodel,
-                'carimage'=>$carimage,
-                'frontimage'=>asset($frontback),
-                'backimage'=>asset($frontback),
-                'position'=>$position];
-        return [
-            'status'=>true,
-                'data'=>$data,
-                ];
-} catch (Exception $e) {
-    return ['status'=>false,'message'=>'Something went wrong!'];
-}
-
-      
-    }
 
 
 

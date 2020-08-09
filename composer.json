@@ -24,7 +24,8 @@
         "rap2hpoutre/fast-excel": "^1.7",
         "rap2hpoutre/laravel-log-viewer": "^1.6",
         "symfony/process": "^4.4",
-        "symfony/translation": "4.3.8"
+        "symfony/translation": "4.3.8",
+        "tymon/jwt-auth": "1.0.*"
     },
     "require-dev": {
         "beyondcode/laravel-dump-server": "^1.0",

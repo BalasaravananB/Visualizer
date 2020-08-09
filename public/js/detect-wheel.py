@@ -59,27 +59,26 @@ thickness = 2
 points = [];
 
 for key, value in enumerate(boxes): 
-	if scores[key] > 0.6 : 
-		rect = value.tolist()
-		startX = rect[0]
-		startY = rect[1]
-		endX = rect[0]
-		endY = rect[1]
-		x = (rect[0] +rect[2])/2
-		y = (rect[1] +rect[3])/2
-		w = (rect[2]-rect[0])
-		h = (rect[3]-rect[1])
-		points.append([x,y,w,h,startX,startY,endX,endY])
-		cv2.rectangle(img,(value[0],value[1]),(value[2],value[3]), color, thickness)
-		cv2.circle(img, (value[0],value[1]), 1, color, 5)
-		cv2.circle(img, (value[2],value[3]), 1, color, thickness)
-
+        if scores[key] > 0.6 : 
+                rect = value.tolist()
+                startX = rect[0]
+                startY = rect[1]
+                endX = rect[0]
+                endY = rect[1]
+                x = (rect[0] +rect[2])/2
+                y = (rect[1] +rect[3])/2
+                w = (rect[2]-rect[0])
+                h = (rect[3]-rect[1])
+                points.append([x,y,w,h,startX,startY,endX,endY])
+#               print(points)
+#               cv2.rectangle(img,(value[0],value[1]),(value[2],value[3]), color, thickness)
+#               cv2.circle(img, (value[0],value[1]), 1, color, 5)
+#               cv2.circle(img, (value[2],value[3]), 1, color, thickness)
+#
 print(points)
- 
-cv2.imwrite(dummyPath+carid+'_car.png', img)
+# 
+#cv2.imwrite(dummyPath+carid+'_car.png', img)
 # # cv2.imshow('img', img)
 # # cv2.waitKey(0) 
-
-
 
 
