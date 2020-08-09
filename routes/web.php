@@ -245,3 +245,9 @@ Route::group(['prefix' => 'admin'], function () {
   Route::get('/password/reset/{token}', 'AdminAuth\ResetPasswordController@showResetForm');
 });
 
+
+Route::get('/test',function(){
+        return view('test');
+});
+
+

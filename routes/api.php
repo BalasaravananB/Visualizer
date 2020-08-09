@@ -1,5 +1,7 @@
 <?php
-
+header('Access-Control-Allow-Origin: *');  
+header('Access-Control-Allow-Methods: GET, PUT, POST, DELETE, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Content-Range, Content-Disposition, Content-Description');
 use Illuminate\Http\Request;
 
 /*
@@ -17,11 +19,11 @@ Route::post('login', 'SiteAPILoginController@login');
 
 Route::group(['middleware' => 'jwt.auth'], function() {
     
-	Route::post('/WheelByVehicle/{accesstoken}', 'SiteAPIController@WheelByVehicle'); 
+	
 
 });
 
-
+Route::post('/WheelByVehicle', 'SiteAPIController@WheelByVehicle'); 
 // Route::middleware('auth:api')->get('/user', function (Request $request) {
 //     return $request->user();
 // });
