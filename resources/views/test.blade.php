@@ -131,8 +131,8 @@
                               <div class="product-layouts">
                                  <div class="product-thumb transition">
                                     <div class="image">
-                                       <img class="wheelImage image_thumb" src="http://web9.vtdns.net/storage/wheels/Koko_Sardinia5_GB_KO4576218304_18.jpg" title="Koko" alt="Koko">
-                                       <img class="wheelImage image_thumb_swap" src="http://web9.vtdns.net/storage/wheels/Koko_Sardinia5_GB_KO4576218304_18.jpg" title="Koko" alt="Koko">
+                                       <img class="wheelImage image_thumb" src="{{ViewProductImage('storage/wheels/Koko_Sardinia5_GB_KO4576218304_18.jpg')}}" title="Koko" alt="Koko">
+                                       <img class="wheelImage image_thumb_swap" src="{{ViewProductImage('storage/wheels/Koko_Sardinia5_GB_KO4576218304_18.jpg')}}" title="Koko" alt="Koko">
                                        <div class="sale-icon"><a>Sale</a></div>
                                     </div>
                                     <div class="thumb-description">
@@ -146,9 +146,7 @@
                                  </div>
                               </div>
                            </div>
-                           <!-- Model Car Start -->
-                           <input type="hidden" id="car_image_name" value="storage/cars/9818_cc2400_032_0CPA.png">
-                           <input type="hidden" id="car_image_id" value="9818">
+                           <!-- Model Car Start --> 
                            <div class="modal fade" id="myModal0" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                               <div class="modal-dialog">
                                  <div class="modal-content">
@@ -166,14 +164,14 @@
                                     <div class="modal-body">
                                        <div class="row main-model-body" >
                                           <div class="col-sm-12 model-car modal_canvas" id="modal_canvas_0">
-                                             <img id="car_image_0" class="car_image_0 car_image_9818 car_image_responsive" src="http://web9.vtdns.net/storage/cars/9818_cc2400_032_0CPA.png" data-carid="9818" data-imagename="storage/cars/9818_cc2400_032_0CPA.png">
+                                             <img id="car_image" class="car_image_0 car_image_9818 car_image_responsive" src="http://web9.vtdns.net/storage/cars/9612_cc2400_032_019.png" data-carid="9818" data-imagename="storage/cars/9612_cc2400_032_019.png">
                                           </div>
                                           <div class="car-wheel">
                                              <div class="front" >
-                                                <img class="frontimg" src="storage/wheels/front_back/Koko_Sardinia5_GB_KO4576218304_18.png" id="image-diameter-front-0" >
+                                                <img class="frontimg" src="storage/wheels/front_back/Koko_Sardinia5_GB_KO4576218304_18.png" id="image-diameter-front" >
                                              </div>
                                              <div class="back">
-                                                <img src="storage/wheels/front_back/Koko_Sardinia5_GB_KO4576218304_18.png" id="image-diameter-back-0">
+                                                <img src="storage/wheels/front_back/Koko_Sardinia5_GB_KO4576218304_18.png" id="image-diameter-back">
                                              </div>
                                           </div>
                                        </div>
@@ -228,6 +226,7 @@
                                  </div>
                               </div>
                            </div>
+
                            <!-- Model Car End -->
                            <!-- Model Car End -->
                         </div>
@@ -264,9 +263,7 @@
          var $loading = $('.se-pre-con');
          
          $(document).ready(function(){
-            if(true){
-                 // getWheelPosition('0')
-             // }else{
+            if(true){ 
                      $loading.fadeOut("slow");
              }
          });
@@ -280,7 +277,7 @@
                make:'Volvo',
                model:'S60',
                submodel:'T6 Polestar-4 Dr Sedan',
-               wheelpartno:'N01-2285Z38JB',
+               wheelpartno:'2610Z20KOSAGB',//'N01-2285Z38JB',
                accesstoken:'Ykc5allXeG9iM04w',
             }
 
@@ -296,16 +293,21 @@
                  type:"POST",
                  dataType:"json",   
                  contentType:contentType,    
-                 success:function(data)
+                 success:function(result)
                  {
-                  console.log('DATA',data);
-                    // alert("Data from Server"+JSON.stringify(data));
+                     var data = result['data'];
+                     console.log(data);
+                     $('#car_image').attr('src',data['carimage']);
+                     $('#image-diameter-front').attr('src',data['frontimage']);
+                     $('#image-diameter-back').attr('src',data['frontimage']);
+                     // console.log('DATA',data);
+                     // alert("Data from Server"+JSON.stringify(data));
                  },
                  error:function(jqXHR,textStatus,errorThrown)
                  {
-                    // alert("You can not send Cross Domain AJAX requests: "+errorThrown);
+                     // alert("You can not send Cross Domain AJAX requests: "+errorThrown);
                  }
-                });
+            });
 
 
 
@@ -337,11 +339,11 @@
          }
          
          function WheelMapping(key){
-          getWheelPosition('0')
-             if(boxes == 'undefined'){
-                 getWheelPosition(key)
-             }
-             
+            getWheelPosition('0')
+            if(boxes == 'undefined'){
+               getWheelPosition(key)
+            }
+          
              // console.log('boxes',boxes)
              if(boxes[0][0] < 400 ){
          
