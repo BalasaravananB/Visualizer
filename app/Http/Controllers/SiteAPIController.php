@@ -20,7 +20,7 @@ class SiteAPIController extends Controller
 	public $is_valid =true;
 	public $error_message ='';
 
-	public function __construct(Request $reques\t)
+	public function __construct(Request $request)
     {
     	if(@$request->accesstoken != ''){
 
