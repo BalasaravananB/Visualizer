@@ -20,7 +20,7 @@ class SiteAPIController extends Controller
 	public $is_valid =true;
 	public $error_message ='';
 
-	public function __construct(Request $request)
+	public function __construct(Request $reques\t)
     {
     	if(@$request->accesstoken != ''){
 
@@ -123,6 +123,8 @@ class SiteAPIController extends Controller
              	$process = new Process("python3 ".public_path()."/js/detect-wheel.py ".$detectimage." ".public_path()." ".$car_images->carid);
 
         		$process->run(); 
+
+        		// $process->setIdleTimeout(60);
 
 		        // executes after the command finishes
 		        if ($process->isSuccessful()) {
