@@ -22,7 +22,7 @@ class SiteAPIController extends Controller
 
 	public function __construct(Request $request)
     {
-    	if(@$request->accesstoken != ''){
+    	if($request->has('accesstoken')){
 
 	    	$site = UserSite::where('api_token',$request->accesstoken)->first();
 	    	if($site != null){
@@ -56,10 +56,6 @@ class SiteAPIController extends Controller
     	if(!$this->is_valid){
     		return ['status'=>$this->is_valid,'message'=>$this->error_message];
     	}
-
-
-        // dd($request->all());
-        
 
         $validator = Validator::make($request->all() , ['year' => 'required|max:255', 'make' => 'required|max:255', 'model' => 'required|max:255', 'submodel' => 'required|max:255', 'wheelpartno' => 'required|max:255', ]);
 
@@ -136,20 +132,6 @@ class SiteAPIController extends Controller
 
 		        }
 
-
-
-
-            // $position = ['front' => array(
-            //     'left' => 80,
-            //     'top' => 275,
-            //     'width' => 90
-            // ) , 'back' => array(
-            //     'left' => 280,
-            //     'top' => 275,
-            //     'width' => 70
-            // ) ,
-
-            // ];
             $data = ['baseurl' => asset('/') , 'vehicle' => $vehicle->year_make_model_submodel, 'carimage' => $carimage, 'frontimage' => asset($frontback) , 'backimage' => asset($frontback) , 'position' => $position];
             return ['status' => true, 'data' => $data, ];
         }
@@ -189,5 +171,35 @@ class SiteAPIController extends Controller
         return $vehicle;
     }
 
+    public function getVehicles(Request $request)
+    {
+
+        try{
+            $vehicle = new Vehicle; 
+            // dd($request->all(),$vehicle);
+            // Make change or Loading filter
+            if(isset($request->make) && $request->changeBy == 'make' || $request->changeBy == '')
+                $allData['year'] = $data = $vehicle->select('year')->distinct('year')->wheremake($request->make)->orderBy('year','DESC')->get();
+
+            // Year change  or Loading Filter
+            if(isset($request->make) && isset($request->year) && $request->changeBy == 'year' || $request->changeBy == '')
+                $allData['model'] = $data = $vehicle->select('model')->distinct('model')->where('year',$request->year)->wheremake($request->make)->orderBy('model','ASC')->get();
+
+            // Model change  or Loading Filter
+            if(isset($request->make) && isset($request->year) && isset($request->model) && $request->changeBy == 'model' || $request->changeBy == '')
+                $allData['submodel'] = $data = $vehicle->select('submodel','body')->distinct('submodel','body')->where('year',$request->year)->wheremake($request->make)->wheremodel($request->model)->orderBy('submodel','ASC')->get();
+                // dd($allData['submodel']);
+
+            if($request->changeBy == ''){    
+                return response()->json(['data' => $allData]);
+            }
+            return response()->json(['data' => $data]);
+
+        }catch(ModelNotFoundException $notfound){
+            return response()->json(['error' => $notfound->getMessage()]); 
+        }catch(Exception $error){
+            return response()->json(['error' => $error->getMessage()]); 
+        }
+    }
 }
 

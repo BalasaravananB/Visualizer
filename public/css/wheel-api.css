@@ -1,0 +1,43 @@
+
+.modal-header {
+    background: #000 !important;
+    color: #fff !important;
+}
+
+.modal-dialog {
+    width: 700px !important;
+    margin: 10% auto !important;
+}
+
+.vehicle-image {
+    width: 100%;
+}
+
+.front img {
+    width: 70px;
+    position: absolute;
+    content: '';
+    top: 40.7%;
+    left: 38%;
+    bottom: 121%;
+    right: 0;
+    transform: perspective(0px) rotateY(37deg);
+    object-fit: cover;
+}
+
+.back img {
+    width: 56px;
+    position: absolute;
+    content: '';
+    top: 47%;
+    left: 73.5%;
+    bottom: 0;
+    right: 0;
+    transform: perspective(405px) rotateY(54deg);
+    object-fit: cover;
+}
+
+.model-car {
+    font-size: 12px !important;
+    font-family: oswald !important;
+}
