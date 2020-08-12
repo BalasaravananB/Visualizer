@@ -1,3 +1,4 @@
+var baseurl = "http://web9.vtdns.net";
 var boxes;
 var allData;
 var widthAdjusted = true;
@@ -10,14 +11,14 @@ var submodel = $('.submodel').val();
 var $loading = $('.se-pre-con');
 $(document).ready(function() {
     getVisualiserModal();
-    getWheelPosition();
-    var delay = 1000;
-    setTimeout(function() {
-            $loading.fadeOut("slow");
-            console.log('Waiting Time Closed')
-        },
-        delay
-    );
+    // getWheelPosition();
+    // var delay = 1000;
+    // setTimeout(function() {
+    //         $loading.fadeOut("slow");
+    //         console.log('Waiting Time Closed')
+    //     },
+    //     delay
+    // );
 });
 
 function getVisualiserModal() {
@@ -62,7 +63,19 @@ function getVisualiserModal() {
     $('#Visualiser-Section').html(modalStr);
 }
 
-function getWheelPosition(key) {
+function getWheelPosition(partno='') {
+
+
+      console.log(partno);
+      var data = {
+          make: $('.make').val(),
+          year: $('.year').val(),
+          model: $('.model').val(),
+          submodel: $('.submodel').val(),
+          wheelpartno:partno,
+          accesstoken:accesstoken,
+      };
+       
 
     var contentType = "application/x-www-form-urlencoded; charset=utf-8";
 
@@ -70,10 +83,9 @@ function getWheelPosition(key) {
         contentType = "text/plain";
 
     $.ajax({
-        url: "http://web9.vtdns.net/api/WheelByVehicle",
+        url: baseurl+"/api/WheelByVehicle",
         data: data,
         type: "POST",
-        dataType: "json",
         contentType: contentType,
         success: function(result) {
 
@@ -89,8 +101,7 @@ function getWheelPosition(key) {
                 WheelMapping('0')
             } else {
 
-                $loading.fadeOut("slow");
-                alert(result['message']);
+                $loading.fadeOut("slow"); 
             }
         },
         error: function(jqXHR, textStatus, errorThrown) {
@@ -103,7 +114,7 @@ function getWheelPosition(key) {
 }
 
 function WheelMapping(key = '') {
-
+  // console.log(allData);
     boxes = allData['position'];
     $('#vehicle-image').attr('src', allData['carimage']);
     $('#wheel-front').attr('src', allData['frontimage']);
@@ -162,14 +173,15 @@ function filters(changeBy = '') {
     var year = $('.year').val();
     var model = $('.model').val();
     var submodel = $('.submodel').val();
-    console.log('changeBy', changeBy, make);
+    console.log('changeBy', changeBy, (make,year,model,submodel));
 
 
     var data = {
         year: year,
         make: make,
         model: model,
-        changeBy: changeBy
+        changeBy: changeBy,
+        accesstoken :accesstoken
     }
 
     var contentType = "application/x-www-form-urlencoded; charset=utf-8";
@@ -178,12 +190,16 @@ function filters(changeBy = '') {
         contentType = "text/plain";
 
     $.ajax({
-        url: "http://web9.vtdns.net/api/getVehicles",
+        url: baseurl+"/api/getVehicles",
         data: data,
         type: "POST",
-        dataType: "json",
         contentType: contentType,
         success: function(result) {
+          console.log(result)
+            if (result['status'] == false) {
+ 
+                alert(result['message']);
+            }
             $('.submodel').empty().append('<option disabled selected>Select Submodel</option>');
 
             if (changeBy == '' || changeBy == 'year' || changeBy == 'make') {
@@ -194,36 +210,44 @@ function filters(changeBy = '') {
             }
 
             if (changeBy == '') {
-                data.data['year'].map(function(value, key) {
-                    isSelected = (value.yr == year) ? 'selected' : '';
-                    $('.year').append('<option value="' + value.yr + '" ' + isSelected + '>' + value.yr + '</option>');
+                console.log(result)
+                result.data['make'].map(function(value, key) {
+                    isSelected = (value.make == make) ? 'selected' : '';
+                    $('.make').append('<option value="' + value.make + '" ' + isSelected + '>' + value.make + '</option>');
                 });
-                data.data['model'].map(function(value, key) {
+
+                result.data['year'].map(function(value, key) {
+                    isSelected = (value.year == year) ? 'selected' : '';
+                    $('.year').append('<option value="' + value.year + '" ' + isSelected + '>' + value.year + '</option>');
+                });
+                result.data['model'].map(function(value, key) {
                     isSelected = (value.model == model) ? 'selected' : '';
                     $('.model').append('<option value="' + value.model + '" ' + isSelected + '>' + value.model + '</option>');
                 });
-                data.data['driverbody'].map(function(value, key) {
-                    isSelected = (value.vif == driverbody) ? 'selected' : '';
-                    $('.submodel').append('<option value="' + value.vif + '"' + isSelected + '>' + value.whls + ' ' + value.drs + ' ' + value.body + '</option>');
+                result.data['submodel'].map(function(value, key) { 
+                    $('.submodel').append('<option value="' + value.submodel + '-'+value.body  + '">' + value.submodel + '-'+value.body  + '</option>');
                 });
             } else {
-                data.data.map(function(value, key) {
+                result.data.map(function(value, key) {
                     if (changeBy == 'make') {
 
-                        isSelected = (value.yr == year) ? 'selected' : '';
-                        $('.year').append('<option value="' + value.yr + '"' + isSelected + '>' + value.yr + '</option>');
+                        isSelected = (value.year == year) ? 'selected' : '';
+                        $('.year').append('<option value="' + value.year + '"' + isSelected + '>' + value.year + '</option>');
                     }
                     if (changeBy == 'year') {
                         isSelected = (value.model == model) ? 'selected' : '';
                         $('.model').append('<option value="' + value.model + '"' + isSelected + '>' + value.model + '</option>');
                     }
-                    if (changeBy == 'model') {
-                        isSelected = (value.vif == driverbody) ? 'selected' : '';
-                        $('.submodel').append('<option value="' + value.vif + '"' + isSelected + '>' + value.whls + ' ' + value.drs + ' ' + value.body + '</option>');
+                    if (changeBy == 'model') { 
+                        $('.submodel').append('<option value="' + value.submodel + '-'+value.body  + '">' + value.submodel + '-'+value.body  + '</option>');
                     }
                 });
             }
   
+               
+
+
+
         },
         error: function(jqXHR, textStatus, errorThrown) {
             alert('Something Went Wrong!')
@@ -234,10 +258,73 @@ function filters(changeBy = '') {
 
 }
 
-// //  Driver / Body change your car 
-// $('.submodel').on('change', function() {
-//     var car_id = $(this).val();
-//     if (car_id != '') {
-//         updateParamsToUrl('car_id', car_id);
-//     }
-// });
+//  Driver / Body change your car 
+$('.submodel').on('change', function() { 
+    
+      var searchData = {
+          make: $('.make').val(),
+          year: $('.year').val(),
+          model: $('.model').val(),
+          submodel: $('.submodel').val(),
+          accesstoken:accesstoken
+      };
+       
+    var contentType = "application/x-www-form-urlencoded; charset=utf-8";
+
+    if (window.XDomainRequest) //for IE8,IE9
+        contentType = "text/plain";
+
+    $.ajax({
+        url: baseurl+"/api/getWheels",
+        data: searchData,
+        type: "POST", 
+        success: function(result) {
+          console.log(result);
+
+            if (result['status'] == true) {
+
+                products = result['data']['products']; 
+                listProducts(products);
+
+
+                $loading.fadeOut("slow");
+
+                
+ 
+            } else {
+
+                $loading.fadeOut("slow");
+                alert(result['message']);
+            }
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            alert('Something Went Wrong!')
+            $loading.fadeOut("slow");
+        }
+    });
+});
+
+
+
+function listProducts(products) {
+  console.log('listProducts',products);
+
+
+ productData = products['data'];
+
+    console.log('listStr')
+    var listStr='<div class="row col-sm-12" >';
+
+
+    $.each(productData, function( index, value ){
+        console.log( index + ": " + value );
+        product = value ;
+        listStr += ' <div class="col-sm-4"> <div class="product-layouts"> <div class="product-thumb transition"> <div class="image"> <img class="wheelImage image_thumb" src="'+baseurl+'/storage/wheels/'+product.prodimage+'" title="'+product.prodimage+'"" alt="'+product.prodimage+'"" onError="this.onerror=null;this.src=\''+baseurl+'/image/no_image.jpg'+'\';" > </div> <div class="thumb-description"> <div class="caption"> <button class="btn btn-primary" onclick="getWheelPosition(\''+product.partno+'\')" >See On Your Car</button> <div class="thumb-description-price-details"> <span class="price-new">Starting at :'+product['price']+'</span> </div> </div> </div> </div> </div> </div> ';
+    });
+    listStr +='</div>';
+
+$('#Visualiser-Products-Section').html(listStr);  
+
+
+ 
+}

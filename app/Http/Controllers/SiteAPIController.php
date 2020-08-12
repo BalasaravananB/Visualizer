@@ -7,55 +7,64 @@ use App\WheelProduct;
 use App\Viflist;
 use App\Vehicle;
 use App\Wheel;
-use App\CarImage; 
-use App\User; 
-use App\UserSite; 
-use Illuminate\Http\Request;  
+use App\CarImage;
+use App\User;
+use App\UserSite;
+use App\Chassis;
+use App\ChassisModel; 
+use App\PlusSize; 
+use Illuminate\Http\Request;
 use Validator;
-
 
 class SiteAPIController extends Controller
 {
 
-	public $is_valid =true;
-	public $error_message ='';
+    public $is_valid = true;
+    public $error_message = '';
 
-	public function __construct(Request $request)
+    public function __construct(Request $request)
     {
-    	if($request->has('accesstoken')){
+        if ($request->has('accesstoken'))
+        {
 
-	    	$site = UserSite::where('api_token',$request->accesstoken)->first();
-	    	if($site != null){
-	    		$host_token = base64_decode(base64_decode($request->accesstoken));
-	    		$requestHost = parse_url($request->headers->get('origin'),  PHP_URL_HOST);
+            $site = UserSite::where('api_token', $request->accesstoken)
+                ->first();
+            if ($site != null)
+            {
+                $host_token = base64_decode(base64_decode($request->accesstoken));
+                $requestHost = parse_url($request
+                    ->headers
+                    ->get('origin') , PHP_URL_HOST);
 
-	    		if($requestHost != $host_token){
-	    			$this->is_valid=false;
-	    			$this->error_message='You couldn\'t access from Invalid Site!!'; 
-	    		}
-	    	}else{
-	    			$this->is_valid=false;
-	    			$this->error_message='Token is Invalid!!'; 
-	    	}
-	    }else{
-	    			$this->is_valid=false;
-	    			$this->error_message='Access Token is Required!!'; 
-	    }
-
+                if ($requestHost != $host_token)
+                {
+                    $this->is_valid = false;
+                    $this->error_message = 'You couldn\'t access from Invalid Site!!';
+                }
+            }
+            else
+            {
+                $this->is_valid = false;
+                $this->error_message = 'Token is Invalid!!';
+            }
+        }
+        else
+        {
+            $this->is_valid = false;
+            $this->error_message = 'Access Token is Required!!';
+        }
 
         // $this->middleware('admin.guest', ['except' => 'logout']);
-
+        
     }
-
-
 
     public function WheelByVehicle(Request $request)
     {
 
-
-    	if(!$this->is_valid){
-    		return ['status'=>$this->is_valid,'message'=>$this->error_message];
-    	}
+        if (!$this->is_valid)
+        {
+            return ['status' => $this->is_valid, 'message' => $this->error_message];
+        }
 
         $validator = Validator::make($request->all() , ['year' => 'required|max:255', 'make' => 'required|max:255', 'model' => 'required|max:255', 'submodel' => 'required|max:255', 'wheelpartno' => 'required|max:255', ]);
 
@@ -69,6 +78,7 @@ class SiteAPIController extends Controller
 
             $vehicle = $this->findVehicle($request);
             $carimage = null;
+            $car_images = null;
             $detectimage = null;
             $wheel = null;
             $frontback = null;
@@ -88,7 +98,7 @@ class SiteAPIController extends Controller
                 , 'CarColor'])
                     ->first();
                 $carimage = asset($car_images->image);
-                $detectimage = public_path().'/'.$car_images->image;
+                $detectimage = public_path() . '/' . $car_images->image;
             }
 
             if ($request->wheelpartno)
@@ -116,21 +126,23 @@ class SiteAPIController extends Controller
                 }
             }
 
-             	$process = new Process("python3 ".public_path()."/js/detect-wheel.py ".$detectimage." ".public_path()." ".$car_images->carid);
+            $process = new Process("python3 " . public_path() . "/js/detect-wheel.py " . $detectimage . " " . public_path() . " " . @$car_images->carid);
 
-        		$process->run(); 
+            $process->run();
 
-        		// $process->setIdleTimeout(60);
+            // $process->setIdleTimeout(60);
+            // executes after the command finishes
+            if ($process->isSuccessful())
+            {
 
-		        // executes after the command finishes
-		        if ($process->isSuccessful()) {
-		            
-		            $position = json_encode($process->getOutput());
-		        }else{
+                $position = json_encode($process->getOutput());
+            }
+            else
+            {
 
-		            $position = [[301.4070587158203, 313.35447692871094, 62.829010009765625, 99.53854370117188, 269.9925537109375, 263.585205078125, 269.9925537109375, 263.585205078125], [526.0646209716797, 293.32891845703125, 42.812530517578125, 79.39599609375, 504.6583557128906, 253.63092041015625, 504.6583557128906, 253.63092041015625]];
+                $position = [[301.4070587158203, 313.35447692871094, 62.829010009765625, 99.53854370117188, 269.9925537109375, 263.585205078125, 269.9925537109375, 263.585205078125], [526.0646209716797, 293.32891845703125, 42.812530517578125, 79.39599609375, 504.6583557128906, 253.63092041015625, 504.6583557128906, 253.63092041015625]];
 
-		        }
+            }
 
             $data = ['baseurl' => asset('/') , 'vehicle' => $vehicle->year_make_model_submodel, 'carimage' => $carimage, 'frontimage' => asset($frontback) , 'backimage' => asset($frontback) , 'position' => $position];
             return ['status' => true, 'data' => $data, ];
@@ -139,7 +151,6 @@ class SiteAPIController extends Controller
         {
             return ['status' => false, 'message' => 'Something went wrong!'];
         }
-
     }
 
     public function findVehicle($data)
@@ -174,32 +185,177 @@ class SiteAPIController extends Controller
     public function getVehicles(Request $request)
     {
 
-        try{
-            $vehicle = new Vehicle; 
-            // dd($request->all(),$vehicle);
+        if (!$this->is_valid)
+        {
+            return ['status'=>$this->is_valid,'message'=>$this->error_message];
+            // return response()
+            //     ->json(['error' => $this->error_message]);
+        }
+        try
+        {
+            $vehicle = new Vehicle;
+            // dd($request->all());
+            if (!isset($request->make))
+            {
+                $allData['make'] = $data = $vehicle->select('make')
+                    ->distinct('make')
+                    ->orderBy('make', 'ASC')
+                    ->get();
+
+            }
             // Make change or Loading filter
-            if(isset($request->make) && $request->changeBy == 'make' || $request->changeBy == '')
-                $allData['year'] = $data = $vehicle->select('year')->distinct('year')->wheremake($request->make)->orderBy('year','DESC')->get();
+            if (isset($request->make) && $request->changeBy == 'make' || $request->changeBy == '') $allData['year'] = $data = $vehicle->select('year')
+                ->distinct('year')
+                ->wheremake($request->make)
+                ->orderBy('year', 'DESC')
+                ->get();
 
             // Year change  or Loading Filter
-            if(isset($request->make) && isset($request->year) && $request->changeBy == 'year' || $request->changeBy == '')
-                $allData['model'] = $data = $vehicle->select('model')->distinct('model')->where('year',$request->year)->wheremake($request->make)->orderBy('model','ASC')->get();
+            if (isset($request->make) && isset($request->year) && $request->changeBy == 'year' || $request->changeBy == '') $allData['model'] = $data = $vehicle->select('model')
+                ->distinct('model')
+                ->where('year', $request->year)
+                ->wheremake($request->make)
+                ->orderBy('model', 'ASC')
+                ->get();
 
             // Model change  or Loading Filter
-            if(isset($request->make) && isset($request->year) && isset($request->model) && $request->changeBy == 'model' || $request->changeBy == '')
-                $allData['submodel'] = $data = $vehicle->select('submodel','body')->distinct('submodel','body')->where('year',$request->year)->wheremake($request->make)->wheremodel($request->model)->orderBy('submodel','ASC')->get();
-                // dd($allData['submodel']);
-
-            if($request->changeBy == ''){    
-                return response()->json(['data' => $allData]);
+            if (isset($request->make) && isset($request->year) && isset($request->model) && $request->changeBy == 'model' || $request->changeBy == '') $allData['submodel'] = $data = $vehicle->select('submodel', 'body')
+                ->distinct('submodel', 'body')
+                ->where('year', $request->year)
+                ->wheremake($request->make)
+                ->wheremodel($request->model)
+                ->orderBy('submodel', 'ASC')
+                ->get();
+            // dd($allData['submodel']);
+            if ($request->changeBy == '')
+            {
+                return response()
+                    ->json(['data' => $allData]);
             }
             return response()->json(['data' => $data]);
 
-        }catch(ModelNotFoundException $notfound){
-            return response()->json(['error' => $notfound->getMessage()]); 
-        }catch(Exception $error){
-            return response()->json(['error' => $error->getMessage()]); 
+        }
+        catch(ModelNotFoundException $notfound)
+        {
+            return response()->json(['error' => $notfound->getMessage() ]);
+        }
+        catch(Exception $error)
+        {
+            return response()->json(['error' => $error->getMessage() ]);
         }
     }
+
+
+
+
+    public function getWheels(Request $request)
+    {
+  		if (!$this->is_valid)
+        {
+            return ['status'=>$this->is_valid,'message'=>$this->error_message];
+            
+        }
+
+   		try
+        { 
+            $vehicle = $this->findVehicle($request);
+
+
+            $products = WheelProduct::with('wheel')->select('id', 'prodbrand','detailtitle', 'prodmodel', 'prodfinish', 'prodimage', 'wheeldiameter', 'wheelwidth', 'prodtitle', 'price', 'partno','partno_old','wheeltype','rf_lc','boltpattern1','offset1','offset2','boltpattern1','wheeltype');
+ 
+   
+ 
+  
+            $chassis_models = ChassisModel::where('model_id', @$vehicle->dr_model_id)->first(); 
+
+            $chassis = Chassis::where('chassis_id', @$vehicle->dr_chassis_id)->first(); 
+ 
+
+                //*********************** Offset checking **************************
+                
+                if(@$chassis_models->rim_size_r == null || @$chassis_models->rim_size_r == 'NULL'){
+                    $products = $products->whereBetween('offset1', [$chassis->min_et_front, $chassis->max_et_front]);
+                }else{
+
+                    $products = $products->whereBetween('offset1', [$chassis->min_et_front, $chassis->max_et_front]);
+                    $products = $products->whereBetween('offset1', [$chassis->min_et_rear, $chassis->max_et_rear]);
+                }
+
+                //*********************** Plus Size checking **************************
+
+
+                $plusSizes = PlusSize::where('chassis_id',@$vehicle->dr_chassis_id)->get(); 
+
+
+                $plusSizesArray=array(); $diameterSizesArray=array();
+
+                $rimsizearray = explode('x', $chassis_models->rim_size);
+                $widthPart2 = $widthPart1 = str_replace(" ", "", $rimsizearray[0])?:$rimsizearray[0];
+                $diameterPart2 = $diameterPart1 = str_replace(" ", "", $rimsizearray[1])?:$rimsizearray[1];
+
+                foreach ($plusSizes as $key => $plusSize) {
+                    
+                    $wheelsizearray = explode('x', $plusSize->wheel_size);
+                    $width = str_replace(" ", "", $wheelsizearray[0])?:$wheelsizearray[0];
+                    $diameter = str_replace(" ", "", $wheelsizearray[1])?:$wheelsizearray[1];
+                    if($width > $widthPart2 ){
+                        $widthPart2 = $width;
+                    }
+                    if($diameter > $diameterPart2 ){
+                        $diameterPart2 = $diameter;
+                    }
+                }
+
+                // dd([$diameterPart1,$diameterPart2],[$widthPart1,$widthPart2]);
+                $products = $products->whereBetween('wheeldiameter',[$diameterPart1,$diameterPart2]);
+                $products = $products->whereBetween('wheelwidth',[$widthPart1,$widthPart2]);
+
+                
+
+                //*********************** BCD Bolt Pattern checking **************************
+                if (strpos($chassis->pcd, '.') !== false)
+                {
+                    $str = substr($chassis->pcd, 0, strpos($chassis->pcd, "."));
+                }
+                else
+                {
+                    $str = $chassis->pcd;
+                }
+
+                $boltpattern = (str_replace("x", "", $str)?:'')?:'Blank5';
+                if($boltpattern != ''){
+                    $products = $products->whereIn('boltpattern1', [$boltpattern,'Blank5']);
+                }
+ 
+ 
+                $products = $products->with([
+                                     'DropshipperInventories'=>function ($query){ 
+                                                            $query->where('qty','>=',4); 
+                                                            $query->orderBy('qty','DESC'); 
+                                    }
+                                ])
+                ->orderBy('price', 'ASC'); 
+         
+            $products = $products->get()->unique('prodtitle');  
+ 
+            $products = MakeCustomPaginator($products, $request, 8); 
+
+            return ['status' =>true,'data'=>[
+            	'products'=>$products, 
+            	'vehicle'=>$vehicle,
+            ] ];
+ 
+
+        }
+        catch(ModelNotFoundException $notfound)
+        {
+            return response()->json(['error' => $notfound->getMessage() ]);
+        }
+        catch(Exception $error)
+        {
+            return response()->json(['error' => $error->getMessage() ]);
+        }
+    }
+
 }
 
