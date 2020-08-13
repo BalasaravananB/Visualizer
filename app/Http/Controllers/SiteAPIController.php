@@ -9,7 +9,7 @@ use App\Vehicle;
 use App\Wheel;
 use App\CarImage;
 use App\User;
-use App\UserSite;
+use App\ClientSite;
 use App\Chassis;
 use App\ChassisModel; 
 use App\PlusSize; 
@@ -27,7 +27,7 @@ class SiteAPIController extends Controller
         if ($request->has('accesstoken'))
         {
 
-            $site = UserSite::where('api_token', $request->accesstoken)
+            $site = ClientSite::where('accesstoken', $request->accesstoken)
                 ->first();
             if ($site != null)
             {
