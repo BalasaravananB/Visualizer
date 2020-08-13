@@ -69,13 +69,17 @@
                         </li>
                         @endif
 
-                        @if(VerifyAccess('user'))
+                    <!--     @if(VerifyAccess('user'))
                         <li>
                             <a  href="{{url('admin/user')}}" aria-expanded="false"><i class="fa fa-user "></i> Users  </a>
                         </li>
+                        @endif -->
+                        @if(VerifyAccess('client'))
+                        <li>
+                            <a  href="{{url('admin/client')}}" aria-expanded="false"><i class="fa fa-user "></i> Client Sites  </a>
+                        </li>
                         @endif
-
-                        @if(VerifyAccess('orders'))
+                       <!--  @if(VerifyAccess('orders'))
                         <li>
                             <a  href="{{url('admin/orders')}}" aria-expanded="false"><i class="fa fa-shopping-cart "></i> Orders  </a>
                         </li>
@@ -95,7 +99,7 @@
                         <li>
                             <a  href="{{url('admin/post')}}" aria-expanded="false"><i class="fa fa-sticky-note-o"></i> Posts  </a>
                         </li>
-                        @endif
+                        @endif -->
                         @if(VerifyAccess('car'))
                         <li>
                             <a  href="{{url('admin/car')}}" aria-expanded="false"><i class="fa fa-car "></i> Cars   </a>
@@ -134,12 +138,12 @@
                             <a  href="{{url('admin/chassis')}}" aria-expanded="false"><i class="fa fa-list "></i> Chassis List  </a>
                         </li>
                         @endif
-                        @if(VerifyAccess('ticket'))
+                        <!-- @if(VerifyAccess('ticket'))
                         <li>
                             <a  href="{{url('admin/ticket')}}" aria-expanded="false"><i class="fa fa-list "></i> Tickets  </a>
                         </li>
-                        @endif
-                        @if(VerifyAccess('review'))
+                        @endif -->
+                        <!-- @if(VerifyAccess('review'))
                         <li>
                             <a  href="{{url('admin/review')}}" aria-expanded="false"><i class="fa fa-list "></i> Reviews / Ratings  </a>
                         </li>
@@ -154,14 +158,14 @@
                         <li>
                             <a  href="{{url('admin/slider')}}" aria-expanded="false"><i class="fa fa-list "></i> Sliders  </a>
                         </li>
-                        @endif
+                        @endif -->
                         @if(VerifyAccess('dropshipper'))
                         <li>
                             <a  href="{{url('admin/dropshipper')}}" aria-expanded="false"><i class="fa fa-list "></i> Dropshippers  </a>
                         </li>
                         @endif
  
-
+<!-- 
                         @if(VerifyAccess('logs'))
                         <li>
                             <a  href="{{url('admin/logs/vftp')}}" aria-expanded="false"><i class="fa fa-list "></i> FTP Live Details  </a>
@@ -174,20 +178,20 @@
                         <li>
                             <a  href="{{url('admin/cmspage')}}" aria-expanded="false"><i class="fa fa-list "></i> CMS Pages  </a>
                         </li>
-                        @endif
+                        @endif -->
  
 <!--                         <li>
                             <a  href="{{url('admin/setting')}}" aria-expanded="false"><i class="fa fa-cog "></i> Settings  </a>
                         </li> -->
                         @if(VerifyAccess('cms'))
                         <li>
-                            <a class="has-arrow" href="javascript:void(0)" aria-expanded="false"><i class="fa fa-file "></i> Settings</a>
-                            <ul class="submenu-angle" aria-expanded="false">
-                                <li><a title="Header Page" href="{{url('admin/cms/setting')}}"> <i class="fa fa-cog"></i>  Application Setting </a></li> 
-                                <li><a title="Home Page" href="{{url('admin/cms/home')}}"> <i class="fa fa-home"></i>  Home Page Setting</a></li> 
+                            <!-- <a class="has-arrow" href="javascript:void(0)" aria-expanded="false"><i class="fa fa-file "></i> Settings</a> -->
+                            <!-- <ul class="submenu-angle" aria-expanded="false"> -->
+                                <!-- <li><a title="Header Page" href="{{url('admin/cms/setting')}}"> <i class="fa fa-cog"></i>  Application Setting </a></li>  -->
+                                <!-- <li><a title="Home Page" href="{{url('admin/cms/home')}}"> <i class="fa fa-home"></i>  Home Page Setting</a></li>  -->
                                 <!-- <li><a title="Information Page" href="{{url('admin/cms/information')}}"> <i class="fa fa-info-circle" aria-hidden="true"></i>  Information Tab Setting</a></li>  -->
                                 <!-- <li><a title="All Pages" href="{{url('admin/cmspage')}}"> <i class="fa fa-info-circle" aria-hidden="true"></i>  All Pages</a></li>  -->
-                            </ul>
+                            <!-- </ul> -->
                         </li>
                         @endif
 

@@ -38,6 +38,7 @@ Route::resource('enquiry', 'EnquiryController');
 Route::resource('review', 'ReviewController');
 Route::resource('post', 'PostController');
 Route::resource('postcomment', 'PostCommentController');
+Route::resource('client', 'ClientSiteController');
 
 
 // Routes for Meta Keywords
