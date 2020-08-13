@@ -108,7 +108,7 @@ class ClientSiteController extends Controller
                 $client = ClientSite::find($id);
 
                 $data = $request->except(['_token']); 
-                
+
                 if($request->siteurl != $client->siteurl)
                     $data['accesstoken']=$this->createAccessToken($request->siteurl);
                 
@@ -132,8 +132,15 @@ class ClientSiteController extends Controller
      * @param  \App\ClientSite  $clientSite
      * @return \Illuminate\Http\Response
      */
-    public function destroy(ClientSite $clientSite)
+    public function destroy($id)
     {
-        //
+        try{  
+            $clientSite = ClientSite::find($id)->delete();
+
+            return back()->with('success','Site Access Removed Successfully!!');
+
+        }catch(Exception $e){
+            return back()->withInput(Input::all())->with('error',$e->getMessage());
+        }
     }
 }

@@ -24,13 +24,14 @@ $is_write_access = VerifyAccess('car','write');
         <div class="row">
             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                 <div class="product-status-wrap drp-lst">
-                    <h4>Cars List</h4>
+                    <h4>Vif List</h4>
                     <div style="text-align:right;padding-bottom: 20px">
                     @if($is_write_access)
-                    <button type="button" class="btn btn-info" data-toggle="modal" data-target="#myModal">Add Car</button>
+                    <button type="button" class="btn btn-info" data-toggle="modal" data-target="#myModal">Add Vif and Car</button>
                     @endif
                     
-                    <a  class="btn btn-info"  href="{{url('admin/exportTable')}}?module=CarImage">Export CSV </a>
+                    <a  class="btn btn-info"  href="{{url('admin/exportTable')}}?module=Viflist">Export Viflist CSV </a>
+                    <a  class="btn btn-info"  href="{{url('admin/exportTable')}}?module=CarImage">Export Car Images CSV </a>
                     
                     </div>
                     <div class="asset-inner">
@@ -426,10 +427,10 @@ $is_write_access = VerifyAccess('car','write');
                                                                 <div class="review-content-section">
                                                                     <div id="dropzone1" class="pro-ad upload-section">
 
-                                                                        <div class="row">
+                                                                       <!--  <div class="row">
                                                                             <a class="btn btn-success add-upload">Add New</a>
                                                                             <a class="btn btn-danger remove-upload">Remove One</a>
-                                                                        </div>
+                                                                        </div> -->
                                                                         <div class="row fixed-upload-file">
 
                                                                             <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">

@@ -223,6 +223,7 @@ class CarResource extends Controller
      */
     public function setCarImages(Request $request,$id)
     { 
+
         try{  
 
         $this->validate($request, [
@@ -275,6 +276,7 @@ class CarResource extends Controller
      */
     public function updateCarImages(Request $request,$id)
     {  
+        // dd($request->all());
         $this->validate($request, [
             'cc' => 'required|max:255',
             'color_code' => 'required|max:255',

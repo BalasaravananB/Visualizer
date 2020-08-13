@@ -102,7 +102,7 @@
                         @endif -->
                         @if(VerifyAccess('car'))
                         <li>
-                            <a  href="{{url('admin/car')}}" aria-expanded="false"><i class="fa fa-car "></i> Cars   </a>
+                            <a  href="{{url('admin/car')}}" aria-expanded="false"><i class="fa fa-car "></i> Viflist & Cars   </a>
                         </li>
                         @endif
 

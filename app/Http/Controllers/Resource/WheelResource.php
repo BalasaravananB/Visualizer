@@ -108,8 +108,7 @@ class WheelResource extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
-    {  
-        // dd($request->all());
+    {   
         $this->validate($request, [
             // 'year' => 'required|max:255',
             'brand' => 'required|max:255', 
@@ -129,17 +128,26 @@ class WheelResource extends Controller
             $wheel = Wheel::whereid($id)->first();
             $wheel->update($data);
             $wheel = Wheel::whereid($id)->first();
-            if($request->hasFile('image') && $request->hasFile('front_back_image') ){
+            $imagename='';
+
+             if($request->hasFile('image')){    
                 $imagename = $request->image->getClientOriginalName();  
                 $split_name = explode('.', $imagename);
                 $front_back_image = $split_name[0].'.png';
-                $request->image->move(public_path('/storage/wheels'), $imagename);
-                $request->front_back_image->move(public_path('/storage/wheels/front_back'), $front_back_image); 
+                $request->image->move(public_path('/storage/wheels'), $imagename); 
+                $wheel->image = 'storage/wheels/'.$imagename; 
+            } 
 
-                $wheel->image = 'storage/wheels/'.$imagename;
+
+            if($request->hasFile('front_back_image')){ 
+                $front_back_image = str_replace('storage/wheels/', '', $wheel->image);  
+                $request->front_back_image->move(public_path('/storage/wheels/front_back'), $front_back_image); 
+ 
                 $wheel->frontimage = 'storage/wheels/front_back/'.$front_back_image;
                 $wheel->rearimage = 'storage/wheels/front_back/'.$front_back_image; 
-            } 
+            }
+
+           
             $wheel->save(); 
 
             return back()->with('flash_success','Wheel Updated successfully');

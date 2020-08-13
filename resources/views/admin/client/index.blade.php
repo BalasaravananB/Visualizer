@@ -277,8 +277,8 @@ $is_write_access = VerifyAccess('client','write');
         $('#featured-img-'+key).attr('src',$('#featured-img-list-'+key).attr('src'));
     })
 
-    $('.delete-post').click(function(){
-            if (confirm("Are you sure want to remove post?")) {
+    $('.delete-client').click(function(){
+            if (confirm("Are you sure want to remove client?")) {
                 $('#delete-form-'+$(this).data('key')).submit();
             }
             return false;
