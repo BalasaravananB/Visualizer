@@ -27,6 +27,9 @@ Route::POST('/getWheels', 'SiteAPIController@getWheels');
 Route::POST('/WheelByVehicle', 'SiteAPIController@WheelByVehicle');  
 
 
+Route::POST('/setWheelVehicleFlow', 'SiteAPIController@setWheelVehicleFlow');  
+
+
 // Route::middleware('auth:api')->get('/user', function (Request $request) {
 //     return $request->user();
 // });

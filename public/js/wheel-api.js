@@ -93,9 +93,10 @@ function getWheelPosition(partno='') {
 
             if (result['status'] == true) {
 
-                allData = result['data'];
+                allData = result['data']; 
 
                 $loading.fadeOut("slow");
+ 
 
                 $("#VisualiserModal").modal("show");
 
@@ -117,6 +118,7 @@ function getWheelPosition(partno='') {
 function WheelMapping(key = '') {
   // console.log(allData);
     boxes = allData['position'];
+
     $('#vehicle-image').attr('src', allData['carimage']);
     $('#wheel-front').attr('src', allData['frontimage']);
     $('#wheel-back').attr('src', allData['frontimage']);
@@ -304,6 +306,13 @@ $('.submodel').on('change', function() {
 });
 
 
+function UrlExists(url)
+{
+    var http = new XMLHttpRequest();
+    http.open('HEAD', url, false);
+    http.send();
+    return http.status!=404;
+}
 
 function listProducts(products) {
   console.log('listProducts',products);
@@ -312,15 +321,35 @@ function listProducts(products) {
  productData = products['data'];
 
     console.log('listStr')
-    var listStr='<div class="row col-sm-12" >';
+    var listStr=`<div class="row col-sm-12" >`;
 
 
-    $.each(productData, function( index, value ){
-        console.log( index + ": " + value );
+    $.each(productData, function( index, value ){ 
+        // console.log( index + ": " + value );
         product = value ;
-        listStr += ' <div class="col-sm-4"> <div class="product-layouts"> <div class="product-thumb transition"> <div class="image"> <img class="wheelImage image_thumb" src="'+baseurl+'/storage/wheel_products/'+product.prodimage+'" title="'+product.prodimage+'"" alt="'+product.prodimage+'"" onError="this.onerror=null;this.src=\''+baseurl+'/image/no_image.jpg'+'\';" > </div> <div class="thumb-description"> <div class="caption"> <button class="btn btn-primary" onclick="getWheelPosition(\''+product.partno+'\')" >See On Your Car</button> <div class="thumb-description-price-details"> <span class="price-new">Starting at :'+product['price']+'</span> </div> </div> </div> </div> </div> </div> ';
+        listStr += `
+<div class="col-sm-4"> 
+  <div class="product-layouts"> 
+    <div class="product-thumb transition"> 
+      <div class="image" > 
+        <img class="wheelImage image_thumb" src="`+baseurl+`/storage/wheel_products/`+product.prodimage+`" onError="this.onerror=null;this.src='`+baseurl+`/image/no_image.jpg';" > 
+      </div> 
+      <div class="thumb-description"> 
+        <div class="caption"> 
+          <button class="btn btn-primary" onclick="getWheelPosition(\'`+product.partno+`\')" >See On Your Car</button> 
+        </div>
+        <div class="thumb-description-price-details"> 
+            <span class="price-new">Title :`+product['detailtitle']+`</span> 
+            <br>
+            <span class="price-new">Starting at :`+product['price']+`</span> 
+        </div> 
+      </div> 
+    </div> 
+  </div> 
+</div>  
+        `;
     });
-    listStr +='</div>';
+    listStr +=`</div>`;
 
 $('#Visualiser-Products-Section').html(listStr);  
 

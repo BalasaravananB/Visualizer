@@ -1,5 +1,5 @@
-// var baseurl = "http://web9.vtdns.net"; 
-var baseurl = "http://localhost:8001"; 
+var baseurl = "http://web9.vtdns.net"; 
+// var baseurl = "http://localhost:8001"; 
 var boxes;
 var allData;
 var widthAdjusted = true;
@@ -330,17 +330,32 @@ $('#Visualiser-Products-Section').html(listStr);
 
 
 var pathstring='';
-$('.WheelVehicleSubmit').click(function(){
-    // console.log($('#WheelVehicleSearch').serialize())
-    pathstring = $('#WheelVehicleSearch').serialize();
-     $.ajax({
-        url: "/setWheelVehicleFlow",
-        method: 'GET',
-        data: pathstring,
-        success: function(result) {
-            console.log(result);
 
-            if (result['status'] == true) { 
+$('.WheelVehicleSubmitAJAX').click(function(){
+ 
+      var searchData = {
+          make: $('.make').val(),
+          year: $('.year').val(),
+          model: $('.model').val(),
+          submodel: $('.submodel').val(),
+          accesstoken:accesstoken,
+          flag: 'searchByVehicle'
+      };
+       
+    var contentType = "application/x-www-form-urlencoded; charset=utf-8";
+
+    if (window.XDomainRequest) //for IE8,IE9
+        contentType = "text/plain";
+
+    $.ajax({
+        url: baseurl+"/api/setWheelVehicleFlow",
+        data: searchData,
+        type: "POST", 
+        success: function(result) {
+          console.log(result);
+
+            if (result['status'] == true) {
+
                 if(result['vehicle']['offroad']!=''){
 
                     $("#offroadTypeModal").modal({
@@ -351,11 +366,33 @@ $('.WheelVehicleSubmit').click(function(){
                     getZipcode(result);
                 }
                 // window.location.reload();
+                
+ 
+            } else {
+
+                $loading.fadeOut("slow");
+                alert(result['message']);
             }
         },
         error: function(jqXHR, textStatus, errorThrown) {
-
-
+            alert('Something Went Wrong!')
+            $loading.fadeOut("slow");
         }
     });
+
+
+    //  $.ajax({
+    //     url: "/setWheelVehicleFlow",
+    //     method: 'GET',
+    //     data: pathstring,
+    //     success: function(result) {
+    //         console.log(result);
+
+          
+    //     },
+    //     error: function(jqXHR, textStatus, errorThrown) {
+
+
+    //     }
+    // });
 });

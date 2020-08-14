@@ -13,8 +13,10 @@ use App\ClientSite;
 use App\Chassis;
 use App\ChassisModel; 
 use App\PlusSize; 
+use App\Offroad; 
 use Illuminate\Http\Request;
 use Validator;
+use Session;
 
 class SiteAPIController extends Controller
 {
@@ -339,7 +341,7 @@ class SiteAPIController extends Controller
          
             $products = $products->get()->unique('prodtitle');  
  
-            $products = MakeCustomPaginator($products, $request, 8); 
+            $products = MakeCustomPaginator($products, $request, 12); 
 
             return ['status' =>true,'data'=>[
             	'products'=>$products, 
@@ -357,6 +359,73 @@ class SiteAPIController extends Controller
             return response()->json(['error' => $error->getMessage() ]);
         }
     }
+
+
+
+    public function getLiftSizes(Request $request){
+        
+        $vehicle = Session::get('user.vehicle'); 
+
+        $liftsizes = Offroad::where('offroadid',@$vehicle->offroad)->whereNotIn('plussizetype',['Levelkit'])->select('plussizetype')->distinct('plussizetype')->pluck('plussizetype'); 
+
+        return $liftsizes?:null;
+
+    
+
+    }
+
+    public function checkDropshippble(Request $request){
+        
+        $dropshippable = 0;
+        if(@$request->productid){ 
+
+            $wheelproduct = WheelProduct::find($request->productid);
+            $dropshippable = $wheelproduct->dropshippable;
+        }
+
+        return ['dropshippable'=>$dropshippable];
+
+    
+
+    }
+
+
+    public function setWheelVehicleFlow(Request $request){
+
+        try {
+            
+            if($request->flag == 'searchByVehicle'){ 
+                $vehicle = $this->findVehicle($request);
+                Session::put('user.searchByVehicle',$request->all());  
+                Session::put('user.offroadtype',null);
+                Session::put('user.liftsize',null); 
+                Session::put('user.vehicle',$vehicle); 
+            }
+
+            if($request->offroad){    
+                if($request->offroad == 'levelkit'){
+                    Session::put('user.liftsize','Levelkit'); 
+                }
+                Session::put('user.offroadtype',$request->offroad); 
+            }
+      
+            if($request->liftsize){     
+                Session::put('user.liftsize',$request->liftsize); 
+            }
+
+            $zipcode = Session::get('user.zipcode');
+            $offroadtype = Session::get('user.offroadtype');
+            $liftsize = Session::get('user.liftsize'); 
+            $vehicle =  Session::get('user.vehicle'); 
+
+            return ['status'=>true,'zipcode'=>$zipcode,'offroadtype'=>$offroadtype,'liftsize'=>$liftsize,'vehicle'=>$vehicle];
+
+
+        } catch (Exception $e) {
+             return ['status'=>false];
+        } 
+    }
+
 
 }
 
