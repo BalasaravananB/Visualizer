@@ -17,7 +17,7 @@ use App\Offroad;
 use Illuminate\Http\Request;
 use Validator;
 use Session;
-
+use Log;
 class SiteAPIController extends Controller
 {
 
@@ -128,24 +128,29 @@ class SiteAPIController extends Controller
                 }
             }
 
+            Log::info('Process Initiate');
             $process = new Process("python3 " . public_path() . "/js/detect-wheel.py " . $detectimage . " " . public_path() . " " . @$car_images->carid);
 
             $process->run();
-
+            Log::info('Process Run');
             // $process->setIdleTimeout(60);
             // executes after the command finishes
+            Log::info('Condition Check');
             if ($process->isSuccessful())
             {
 
+            	Log::info('Run Successful');
                 $position = json_encode($process->getOutput());
             }
             else
             {
 
+            	Log::info('Run Fail Part');
                 $position = [[301.4070587158203, 313.35447692871094, 62.829010009765625, 99.53854370117188, 269.9925537109375, 263.585205078125, 269.9925537109375, 263.585205078125], [526.0646209716797, 293.32891845703125, 42.812530517578125, 79.39599609375, 504.6583557128906, 253.63092041015625, 504.6583557128906, 253.63092041015625]];
 
             }
 
+            	Log::info('Response Binded');
             $data = ['baseurl' => asset('/') , 'vehicle' => $vehicle->year_make_model_submodel, 'carimage' => $carimage, 'frontimage' => asset($frontback) , 'backimage' => asset($frontback) , 'position' => $position];
             return ['status' => true, 'data' => $data, ];
         }
