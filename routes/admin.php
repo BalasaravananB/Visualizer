@@ -65,6 +65,7 @@ Route::get('/wheelproduct/{id?}/model', 'Resource\WheelProductResource@getProduc
 
 // Routes for Cars Images 
 Route::resource('car', 'Resource\CarResource');
+Route::post('car/uploadcsv', 'Resource\CarResource@uploadcsv');
 Route::get('/car/images/{id}', 'Resource\CarResource@getCarImages')->name('car.images'); 
 Route::post('/car/images/{id}', 'Resource\CarResource@setCarImages')->name('car.images.store');
 Route::patch('/car/images/{id}', 'Resource\CarResource@updateCarImages')->name('car.images.update');

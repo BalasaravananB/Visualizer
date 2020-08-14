@@ -20,9 +20,13 @@ Route::group(['middleware' => 'jwt.auth'], function() {
 
 });
 
-Route::POST('/WheelByVehicle', 'SiteAPIController@WheelByVehicle'); 
 Route::POST('/getVehicles', 'SiteAPIController@getVehicles'); 
-Route::POST('/getWheels', 'SiteAPIController@getWheels'); 
+
+Route::POST('/getWheels', 'SiteAPIController@getWheels');  
+
+Route::POST('/WheelByVehicle', 'SiteAPIController@WheelByVehicle');  
+
+
 // Route::middleware('auth:api')->get('/user', function (Request $request) {
 //     return $request->user();
 // });

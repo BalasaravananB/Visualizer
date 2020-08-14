@@ -1,5 +1,5 @@
-var baseurl = "http://web9.vtdns.net"; 
-// var baseurl = "http://localhost:8001"; 
+// var baseurl = "http://web9.vtdns.net"; 
+var baseurl = "http://localhost:8001"; 
 var boxes;
 var allData;
 var widthAdjusted = true;
@@ -11,7 +11,7 @@ var submodel = $('.submodel').val();
 
 var $loading = $('.se-pre-con');
 $(document).ready(function() {
-    getVisualiserModal();
+    // getVisualiserModal();
     // getWheelPosition();
     // var delay = 1000;
     // setTimeout(function() {
@@ -22,47 +22,47 @@ $(document).ready(function() {
     // );
 });
 
-function getVisualiserModal() {
+// function getVisualiserModal() {
 
-    var modalStr = `
-        <!-- Visualiser Model Start -->
-        <div class="modal fade" id="VisualiserModal" tabindex="-1" role="dialog" aria-labelledby="VisualiserLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                        <h4 class="modal-title" id="VisualiserLabel"></h4>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-sm-12 model-car modal_canvas" id="modal_canvas_0">
-                                <img id="vehicle-image" class="vehicle-image" src="" data-carid="9818" data-imagename="storage/cars/9612_cc2400_032_019.png">
-                            </div>
-                            <div class="car-wheel">
-                                <div class="front">
-                                    <img class="frontimg" src="" id="wheel-front">
-                                </div>
-                                <div class="back">
-                                    <img class="backimg"  src="" id="wheel-back">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row model-car-body"> 
-                            <div class="col-sm-4">
-                                <h1 class="model-car">Wheel Diameter</h1>
-                                <button class="model-button diameter-up" data-id="0">Zoom In</button>
-                                <button class="model-button diameter-down" data-id="0">Zoom Out</button>
-                            </div> 
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Visualiser Model End -->
-          `;
+//     var modalStr = `
+//         <!-- Visualiser Model Start -->
+//         <div class="modal fade" id="VisualiserModal" tabindex="-1" role="dialog" aria-labelledby="VisualiserLabel" aria-hidden="true">
+//             <div class="modal-dialog">
+//                 <div class="modal-content">
+//                     <div class="modal-header">
+//                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+//                         <h4 class="modal-title" id="VisualiserLabel"></h4>
+//                     </div>
+//                     <div class="modal-body">
+//                         <div class="row">
+//                             <div class="col-sm-12 model-car modal_canvas" id="modal_canvas_0">
+//                                 <img id="vehicle-image" class="vehicle-image" src="" data-carid="9818" data-imagename="storage/cars/9612_cc2400_032_019.png">
+//                             </div>
+//                             <div class="car-wheel">
+//                                 <div class="front">
+//                                     <img class="frontimg" src="" id="wheel-front">
+//                                 </div>
+//                                 <div class="back">
+//                                     <img class="backimg"  src="" id="wheel-back">
+//                                 </div>
+//                             </div>
+//                         </div>
+//                         <div class="row model-car-body"> 
+//                             <div class="col-sm-4">
+//                                 <h1 class="model-car">Wheel Diameter</h1>
+//                                 <button class="model-button diameter-up" data-id="0">Zoom In</button>
+//                                 <button class="model-button diameter-down" data-id="0">Zoom Out</button>
+//                             </div> 
+//                         </div>
+//                     </div>
+//                 </div>
+//             </div>
+//         </div>
+//         <!-- Visualiser Model End -->
+//           `;
 
-    $('#Visualiser-Section').html(modalStr);
-}
+//     $('#Visualiser-Section').html(modalStr);
+// }
 
 function getWheelPosition(partno='') {
 
@@ -114,45 +114,45 @@ function getWheelPosition(partno='') {
 
 }
 
-function WheelMapping(key = '') {
-  // console.log(allData);
-    boxes = allData['position'];
-    $('#vehicle-image').attr('src', allData['carimage']);
-    $('#wheel-front').attr('src', allData['frontimage']);
-    $('#wheel-back').attr('src', allData['frontimage']);
-    $('#VisualiserLabel').html(allData['vehicle']);
+// function WheelMapping(key = '') {
+//   // console.log(allData);
+//     boxes = allData['position'];
+//     $('#vehicle-image').attr('src', allData['carimage']);
+//     $('#wheel-front').attr('src', allData['frontimage']);
+//     $('#wheel-back').attr('src', allData['frontimage']);
+//     $('#VisualiserLabel').html(allData['vehicle']);
 
-    if (boxes[0][0] < 400) {
+//     if (boxes[0][0] < 400) {
 
-        f = boxes[0];
+//         f = boxes[0];
 
-        b = boxes[1];
+//         b = boxes[1];
 
-    } else {
+//     } else {
 
-        f = boxes[1];
+//         f = boxes[1];
 
-        b = boxes[0];
-    }
+//         b = boxes[0];
+//     }
 
-    var front = $('#wheel-front');
-    front.css('left', f[0] - 18 + 'px');
-    front.css('top', f[1] - 1 - 30 + 'px');
+//     var front = $('#wheel-front');
+//     front.css('left', f[0] - 18 + 'px');
+//     front.css('top', f[1] - 1 - 30 + 'px');
 
-    if (widthAdjusted) {
-        var extraWidth = 0;
-        if (front.width() - f[2] > 4) {
-            extraWidth = (front.width() - f[2]) / 2;
-        }
-        front.width(front.width() + extraWidth + 'px');
-        widthAdjusted = false;
-    }
+//     if (widthAdjusted) {
+//         var extraWidth = 0;
+//         if (front.width() - f[2] > 4) {
+//             extraWidth = (front.width() - f[2]) / 2;
+//         }
+//         front.width(front.width() + extraWidth + 'px');
+//         widthAdjusted = false;
+//     }
 
 
-    var back = $('#wheel-back');
-    back.css('left', b[0] - 11.5 + 'px');
-    back.css('top', b[1] + 8.5 - 25 + 'px');
-}
+//     var back = $('#wheel-back');
+//     back.css('left', b[0] - 11.5 + 'px');
+//     back.css('top', b[1] + 8.5 - 25 + 'px');
+// }
 
 
 
@@ -327,3 +327,35 @@ $('#Visualiser-Products-Section').html(listStr);
 
  
 }
+
+
+var pathstring='';
+$('.WheelVehicleSubmit').click(function(){
+    // console.log($('#WheelVehicleSearch').serialize())
+    pathstring = $('#WheelVehicleSearch').serialize();
+     $.ajax({
+        url: "/setWheelVehicleFlow",
+        method: 'GET',
+        data: pathstring,
+        success: function(result) {
+            console.log(result);
+
+            if (result['status'] == true) { 
+                if(result['vehicle']['offroad']!=''){
+
+                    $("#offroadTypeModal").modal({
+                        backdrop: 'static',
+                        keyboard: false
+                    });
+                }else{
+                    getZipcode(result);
+                }
+                // window.location.reload();
+            }
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+
+
+        }
+    });
+});

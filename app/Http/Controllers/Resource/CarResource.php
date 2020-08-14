@@ -355,4 +355,85 @@ class CarResource extends Controller
         }   
     }
 
+
+    public function uploadcsv(Request $request){ 
+        try{  
+
+
+
+            if($request->hasFile('viflistuploadedfile') && $request->type == 'viflist' ){
+                $filename = $request->vehicleuploadedfile->getClientOriginalName();  
+                $request->vehicleuploadedfile->move(public_path('/storage/uploaded_csv'), $filename); 
+                // dd(base_path('storage/app/public/uploaded_csv/').$filename);
+                $filepath = base_path('storage/app/public/uploaded_csv/').$filename;  
+
+                if( !$fr = @fopen($filepath, "r") ){
+
+                    return back()->with('flash_error',"File Could not be read!!");
+                }
+                // $fw = fopen($out_file, "w");
+                $i=1;
+                
+                while( ($data = fgetcsv($fr, 2000000, ",")) !== FALSE ) {
+                    if($i != 1){ 
+                        if((isset($data[0])&&$data[0]!='')){
+                            $vif = new Viflist;
+                            $vif->vif =$data[0];
+                            $vif->org =$data[1];
+                            $vif->send =$data[2];
+                            $vif->yr =$data[3];
+                            $vif->make =$data[4];
+                            $vif->model =$data[5];
+                            $vif->trim =$data[6];
+                            $vif->drs =$data[7];
+                            $vif->body =$data[8];
+                            $vif->cab =$data[9];
+                            $vif->whls =$data[10];
+                            $vif->vin =$data[11];
+                            $vif->date_delivered =$data[12];
+                            $vif->save(); 
+                        }
+                    }
+                    $i++;
+                }
+                fclose($fr);
+                return back()->with('flash_success','Viflist Data Uploaded successfully');
+            }elseif($request->hasFile('carimagesuploadedfile') && $request->type == 'carimages' ){
+                $filename = $request->carimagesuploadedfile->getClientOriginalName();  
+                $request->carimagesuploadedfile->move(public_path('/storage/uploaded_csv'), $filename); 
+                // dd(base_path('storage/app/public/uploaded_csv/').$filename);
+                $filepath = base_path('storage/app/public/uploaded_csv/').$filename;  
+
+                if( !$fr = @fopen($filepath, "r") ){
+
+                    return back()->with('flash_error',"File Could not be read!!");
+                }
+                // $fw = fopen($out_file, "w");
+                $i=1;
+                
+                while( ($data = fgetcsv($fr, 2000000, ",")) !== FALSE ) {
+                    if($i != 1){ 
+                        if((isset($data[0])&&$data[0]!='')){
+                            $carimage = new CarImage;
+                            $carimage->car_id =$data[0];
+                            $carimage->cc =$data[1];
+                            $carimage->color_code =$data[2];
+                            $carimage->image =$data[3]; 
+                            $carimage->save(); 
+                        }
+                    }
+                    $i++;
+                }
+                fclose($fr);
+                return back()->with('flash_success','Car Images Data Uploaded successfully');
+            }else{
+                return back()->with('flash_error',"File Could not be read!!");
+            }
+
+
+        }catch(Exception $e){
+            return back()->with('flash_error',$e->getMessage());
+        } 
+
+    }
 }

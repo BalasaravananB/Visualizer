@@ -194,6 +194,7 @@ class SiteAPIController extends Controller
         try
         {
             $vehicle = new Vehicle;
+            $data = [];
             // dd($request->all());
             if (!isset($request->make))
             {
