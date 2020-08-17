@@ -1,5 +1,5 @@
-// var baseurl = "http://web9.vtdns.net"; 
-var baseurl = "http://localhost:8001";
+var baseurl = "http://web9.vtdns.net"; 
+// var baseurl = "http://localhost:8001";
 var boxes;
 var allData;
 var widthAdjusted = true;
@@ -8,10 +8,23 @@ var make = $('.make').val();
 var year = $('.year').val();
 var model = $('.model').val();
 var submodel = $('.submodel').val();
- 
 var changeBy = '';
+
+var vehicle='';
+var vehicleid='';
+var offroadid='';
+var flag='';
+var zipcode='';
+var offroadtype = '';
+var liftsize = '';
+var qryData = getUrlVars();
+
+var $loading = $('.se-pre-con');
 $(document).ready(function() {
-    // getVisualiserModal();
+    if("{{$request->pagename}}"){
+        getWheelsList();
+        getVisualiserModal();
+    }
     // getWheelPosition();
     // var delay = 1000;
     // setTimeout(function() {
@@ -20,7 +33,7 @@ $(document).ready(function() {
     //     },
     //     delay
     // ); 
-    filters(changeBy);
+    vehicleFilters(changeBy); 
 });
 
 
@@ -28,148 +41,15 @@ $(document).ready(function() {
 // Year based filters for Makes 
 $(document).on('change', '.year,.make,.model', function() {
     changeBy = $(this).attr('name');
-    filters(changeBy);
+    vehicleFilters(changeBy);
 });
 
+function vehicleFilters(changeBy = '') {  
 
-
-function getVisualiserModal() {
-
-    var modalStr = `
-        <!-- Visualiser Model Start -->
-        <div class="modal fade" id="VisualiserModal" tabindex="-1" role="dialog" aria-labelledby="VisualiserLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                        <h4 class="modal-title" id="VisualiserLabel"></h4>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-sm-12 model-car modal_canvas" id="modal_canvas_0">
-                                <img id="vehicle-image" class="vehicle-image" src="" data-carid="9818" data-imagename="storage/cars/9612_cc2400_032_019.png">
-                            </div>
-                            <div class="car-wheel">
-                                <div class="front">
-                                    <img class="frontimg" src="" id="wheel-front">
-                                </div>
-                                <div class="back">
-                                    <img class="backimg"  src="" id="wheel-back">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row model-car-body"> 
-                            <div class="col-sm-4">
-                                <h1 class="model-car">Wheel Diameter</h1>
-                                <button class="model-button diameter-up" data-id="0">Zoom In</button>
-                                <button class="model-button diameter-down" data-id="0">Zoom Out</button>
-                            </div> 
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Visualiser Model End -->
-          `;
-
-    $('#Visualiser-Section').html(modalStr);
-}
-
-function getWheelPosition(partno = '') {
-
-
-    console.log(partno);
-    var data = {
-        make: $('.make').val(),
-        year: $('.year').val(),
-        model: $('.model').val(),
-        submodel: $('.submodel').val(),
-        wheelpartno: partno,
-        accesstoken: accesstoken,
-    };
-
-
-    var contentType = "application/x-www-form-urlencoded; charset=utf-8";
-
-    if (window.XDomainRequest) //for IE8,IE9
-        contentType = "text/plain";
-
-    $.ajax({
-        url: baseurl + "/api/WheelByVehicle",
-        data: data,
-        type: "POST",
-        contentType: contentType,
-        success: function(result) {
-
-
-            if (result['status'] == true) {
-
-                allData = result['data'];
-
-                $loading.fadeOut("slow");
-
-
-                $("#VisualiserModal").modal("show");
-
-                WheelMapping('0')
-            } else {
-
-                $loading.fadeOut("slow");
-            }
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-            alert('Something Went Wrong!')
-            $loading.fadeOut("slow");
-        }
-    });
-}
-
-function WheelMapping(key = '') {
-    // console.log(allData);
-    boxes = allData['position'];
-
-    $('#vehicle-image').attr('src', allData['carimage']);
-    $('#wheel-front').attr('src', allData['frontimage']);
-    $('#wheel-back').attr('src', allData['frontimage']);
-    $('#VisualiserLabel').html(allData['vehicle']);
-
-    if (boxes[0][0] < 400) {
-
-        f = boxes[0];
-
-        b = boxes[1];
-
-    } else {
-
-        f = boxes[1];
-
-        b = boxes[0];
-    }
-
-    var front = $('#wheel-front');
-    front.css('left', f[0] - 18 + 'px');
-    front.css('top', f[1] - 1 - 30 + 'px');
-
-    if (widthAdjusted) {
-        var extraWidth = 0;
-        if (front.width() - f[2] > 4) {
-            extraWidth = (front.width() - f[2]) / 2;
-        }
-        front.width(front.width() + extraWidth + 'px');
-        widthAdjusted = false;
-    }
-
-
-    var back = $('#wheel-back');
-    back.css('left', b[0] - 11.5 + 'px');
-    back.css('top', b[1] + 8.5 - 25 + 'px');
-}
-
-function filters(changeBy = '') {
-    var make = $('.make').val();
-    var year = $('.year').val();
-    var model = $('.model').val();
-    var submodel = $('.submodel').val();
+    make = $('.make').val();
+    year = $('.year').val();
+    model = $('.model').val();
+    submodel = $('.submodel').val();
 
 
     var data = {
@@ -178,18 +58,12 @@ function filters(changeBy = '') {
         model: model,
         changeBy: changeBy,
         accesstoken: accesstoken
-    }
-
-    var contentType = "application/x-www-form-urlencoded; charset=utf-8";
-
-    if (window.XDomainRequest) //for IE8,IE9
-        contentType = "text/plain";
+    } 
 
     $.ajax({
         url: baseurl + "/api/getVehicles",
         data: data,
-        type: "POST",
-        contentType: contentType,
+        type: "POST", 
         success: function(result) {
             if (result['status'] == false) {
 
@@ -250,43 +124,406 @@ function filters(changeBy = '') {
     });
 }
 
-//  Driver / Body change your car 
-function setfilters() {
 
-    var searchData = {
-        make: $('.make').val(),
-        year: $('.year').val(),
-        model: $('.model').val(),
-        submodel: $('.submodel').val(),
+$('.SearchByVehicleGo').click(function(){
+
+    make = $('.make').val();
+    year = $('.year').val();
+    model = $('.model').val();
+    submodel = $('.submodel').val();
+
+
+    var data = {
+        year: year,
+        make: make,
+        model: model, 
+        submodel: submodel, 
         accesstoken: accesstoken
-    };
-
-    var contentType = "application/x-www-form-urlencoded; charset=utf-8";
-
-    if (window.XDomainRequest) //for IE8,IE9
-        contentType = "text/plain";
+    } 
 
     $.ajax({
-        url: baseurl + "/api/getWheels",
-        data: searchData,
-        type: "POST",
+        url: baseurl + "/api/findVehicle",
+        data: data,
+        type: "POST", 
         success: function(result) {
-            console.log(result);
+            if (result['status'] == false) {
+                alert(result['message']);
+            }else{
+                if(result['status']==true &&  result['data']['offroad'] != ''){
+                    vehicle = result['data']['vehicle'];
+                    vehicleid = result['data']['vehicle']['vehicle_id'];
+                    offroadid = result['data']['offroad'];
+                    loadOffroadView();
+                }else{
+
+                    flag = 'searchByVehicle';
+                    loadZipcodeView(); 
+                }
+            } 
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            alert('Something Went Wrong!')
+            $loading.fadeOut("slow");
+        }
+    });
+})
+
+function loadOffroadView(){
+    $('#Offroad-View-Section').html(`
+
+                <div class="modal" id="offroadTypeModal" role="dialog">
+                    <div class="modal-dialog tire-view">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title">Select any one for your vehicle</h4>
+                            </div>
+                            <div class="modal-body"  >
+                                <!-- <div class="col-md-12"> -->
+                                    
+                                    <div style="text-align: center;">
+                                        <div class="btn btn-info select-offroad" data-offroad="levelkit">
+                                            <img src="`+baseurl+`/image/lifttype.jpg" >
+                                            <br>
+                                            <h3 style="color: white !important">Leveling Kit</h3>
+                                        </div> 
+                                    </div>
+
+                                                       <br>                                 
+                                    <div style="text-align: center;">    
+                                        <div class="btn btn-info select-offroad" data-offroad="lift">
+                                            <img src="`+baseurl+`/image/lifttype.jpg" >
+                                            <br>
+                                            <h3 style="color: white !important">Lift Kit</h3>
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <div style="text-align: center;"> 
+                                        <div class="btn btn-info select-offroad" data-offroad="stock">
+
+                                            <img src="`+baseurl+`/image/lifttype.jpg" >
+                                            <br>
+                                            <h3 style="color: white !important">Stock</h3>
+                                        </div>
+                                    </div> 
+                                <!-- </div> -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+        `);
+
+    $('#offroadTypeModal').modal('show');
+}
+
+
+$(document).on('click','.select-offroad',function(){
+
+    $("#offroadTypeModal").modal('hide');
+    
+    offroadtype = $(this).data('offroad'); 
+    
+    if(offroadtype != 'lift'){
+        if(offroadtype == 'levelkit'){
+            liftsize ='Levelkit'
+        }
+
+        flag = 'searchByVehicle';
+        loadZipcodeView(); 
+    }else{
+        var data = {
+            offroadid:offroadid
+        };
+        $.ajax({
+            url: baseurl + "/api/getLiftSizes",
+            data: data,
+            type: "POST", 
+            success: function(result) {
+                if (result['status'] == false) {
+                    alert(result['message']);
+                }else{
+                    if(result['status']==true ){
+                        loadOffroadSizeView(result['data']);
+                    }else{
+                        flag = 'searchByVehicle';
+                        loadZipcodeView(); 
+                    }
+                } 
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                alert('Something Went Wrong!')
+                $loading.fadeOut("slow");
+            }
+        });
+    }
+
+});
+
+ 
+
+function loadOffroadSizeView(data){
+
+    var loadSizeStr=`
+                <div class="modal" id="liftsizeModal" role="dialog">
+                    <div class="modal-dialog tire-view">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title">Please select your vehicle's lift:</h4>
+                            </div>
+                            <div class="modal-body"> 
+    `;
+
+    $.each(data, function(sizekey, size ){
+        loadSizeStr+=`
+                                    <div style="text-align: center;"> 
+                                        <button class="btn btn-info select-liftsize" data-liftsize="`+sizekey+`">
+
+                                            <img src="`+baseurl+`/image/lifttype.jpg" >
+                                            <br>
+                                            <h3 style="color: white !important">` + size + `</h3>
+                                        </button>
+                                    </div>
+                                    <br>
+        `;
+    });
+    
+    loadSizeStr+=`
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    `;
+
+    $('#Offroad-Size-View-Section').html(loadSizeStr);
+
+    $('#liftsizeModal').modal('show');
+}
+
+$(document).on('click','.select-liftsize',function(){
+
+    $("#liftsizeModal").modal('hide');
+    liftsize = $(this).data('liftsize');  
+    flag = 'searchByVehicle';
+    loadZipcodeView(); 
+});
+
+
+function loadZipcodeView(){ 
+    if(zipcode ==''){
+        $('#liftsizeModal').modal('hide');
+        $("#Zipcode-Section").html(`
+                    <div class="modal fade" id="Zipcode-Section-Modal" role="dialog">
+                        <div class="modal-dialog tire-view">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                    <h4 class="modal-title">Zipcode</h4>
+                                </div>
+                                <div class="modal-body"> 
+                                        <div class="form-group has-success has-feedback">
+                                            <label class="col-sm-5 control-label" for="inputSuccess">Your Zipcode</label>
+                                            <div class="col-sm-7">
+                                                <input type="text" class="form-control" id="zipcode-input" name="zipcode" required=""> 
+                                            </div>
+                                        </div>
+                                        <div style="text-align:center;">
+                                            <button class="btn btn-info" id="update-zipcode-button" type="button">Continue</button>
+                                        </div> 
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+        `);
+
+        $("#Zipcode-Section-Modal").modal('show');
+    }else{
+        redirectToList();
+    }
+
+}
+
+
+
+$(document).on('click','#update-zipcode-button',function(){
+
+    $("#Zipcode-Section-Modal").modal('hide');
+        zipcode = $("#zipcode-input").val();
+    redirectToList();
+});
+
+function redirectToList(){
+    window.location.href = "/products?"+
+    "make="+make+
+    "&year="+year+
+    "&model="+model+
+    "&submodel="+submodel+
+    "&vehicleid="+vehicleid+
+    "&offroadid="+offroadid+
+    "&offroadtype="+offroadtype+
+    "&liftsize="+liftsize+
+    "&flag="+flag+
+    "&zipcode="+zipcode+
+    "&pagename=list";
+}
+
+function getUrlVars()
+{
+    var vars = [], hash;
+    var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+    for(var i = 0; i < hashes.length; i++)
+    {
+        hash = hashes[i].split('=');
+        vars.push(hash[0]);
+        vars[hash[0]] = hash[1];
+    }
+    return vars;
+}
+
+
+//  Driver / Body change your car 
+function getWheelsList() {  
+    var data =""; 
+    var listType = 'html';
+    if(qryData['flag'] == 'searchByVehicle'){
+        data={
+            flag:'searchByVehicle',
+            vehicleid:qryData['vehicleid'],
+            zipcode:qryData['zipcode'],
+            offroadtype:qryData['offroadtype'],
+            liftsize: qryData['liftsize'],
+            listType: listType,
+            accesstoken: accesstoken
+        }
+
+    }
+
+    if(qryData['flag'] == 'searchByWheelSize'){
+        data={
+            flag:searchByWheelSize, 
+            zipcode:zipcode, 
+            listType: listType,
+            accesstoken: accesstoken,
+        }
+    }
+  
+    console.log("Passed Data",data);
+    if(qryData['pagename'] == 'list'){
+        $.ajax({
+            url: baseurl + "/api/getWheels",
+            data: data,
+            type: "POST",
+            success: function(result) {
+                console.log(result);
+
+                if (result['status'] == true) {
+
+                    products = result['data']['products'];
+                    if(listType == 'html'){
+                        listProducts(result['data']);
+                    }
+
+                    // $loading.fadeOut("slow");
+
+                } else {
+
+                    // $loading.fadeOut("slow");
+                    alert(result['message']);
+                }
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                alert('Something Went Wrong!')
+                // $loading.fadeOut("slow");
+            }
+        });
+    }
+};
+
+
+function listProducts(products) {
+    console.log('listProducts', products);
+    $('#Visualiser-Products-Section').html(products['htmllist']);
+
+    $(".se-pre-con").fadeOut("slow");
+}
+
+
+function getVisualiserModal() {
+
+    var modalStr = `
+        <!-- Visualiser Model Start -->
+        <div class="modal fade" id="VisualiserModal" tabindex="-1" role="dialog" aria-labelledby="VisualiserLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h4 class="modal-title" id="VisualiserLabel"></h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-sm-12 model-car modal_canvas" id="modal_canvas_0" >
+                                <img id="vehicle-image" class="vehicle-image" src="" data-carid="9818" data-imagename="storage/cars/9612_cc2400_032_019.png" style="width: 100%;">
+                            </div>
+                            <div class="car-wheel">
+                                <div class="front">
+                                    <img class="frontimg" src="" id="wheel-front">
+                                </div>
+                                <div class="back">
+                                    <img class="backimg"  src="" id="wheel-back">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row model-car-body"> 
+                            <div class="col-sm-4">
+                                <h1 class="model-car">Wheel Diameter</h1>
+                                <button class="model-button diameter-up" data-id="0">Zoom In</button>
+                                <button class="model-button diameter-down" data-id="0">Zoom Out</button>
+                            </div> 
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Visualiser Model End -->
+          `;
+
+    $('#Visualiser-Section').html(modalStr);
+}
+
+function getWheelPosition(partno = '') {
+
+
+    console.log(partno);
+    var data = { 
+        vehicleid:qryData['vehicleid'],
+        wheelpartno: partno,
+        accesstoken: accesstoken,
+    };
+
+ 
+    $.ajax({
+        url: baseurl + "/api/WheelByVehicle",
+        data: data,
+        type: "POST", 
+        success: function(result) {
+
 
             if (result['status'] == true) {
 
-                products = result['data']['products'];
-                listProducts(products);
-
+                allData = result['data'];
 
                 $loading.fadeOut("slow");
 
 
+                $("#VisualiserModal").modal("show");
 
+                WheelMapping('0')
             } else {
 
                 $loading.fadeOut("slow");
-                alert(result['message']);
             }
         },
         error: function(jqXHR, textStatus, errorThrown) {
@@ -294,52 +531,48 @@ function setfilters() {
             $loading.fadeOut("slow");
         }
     });
-};
-
-
-function UrlExists(url) {
-    var http = new XMLHttpRequest();
-    http.open('HEAD', url, false);
-    http.send();
-    return http.status != 404;
 }
 
-function listProducts(products) {
-    console.log('listProducts', products);
+function WheelMapping(key = '') {
+    // console.log(allData);
+    boxes = allData['position'];
+
+    $('#vehicle-image').attr('src', allData['carimage']);
+    $('#wheel-front').attr('src', allData['frontimage']);
+    $('#wheel-back').attr('src', allData['frontimage']);
+    $('#VisualiserLabel').html(allData['vehicle']);
+
+    if (boxes[0][0] < 400) {
+
+        f = boxes[0];
+
+        b = boxes[1];
+
+    } else {
+
+        f = boxes[1];
+
+        b = boxes[0];
+    }
+
+    var front = $('#wheel-front');
+        front.css('left',f[0]-18+'px');
+        front.css('top',f[1]-1+'px');
+
+    if (widthAdjusted) {
+        var extraWidth = 0;
+        if (front.width() - f[2] > 4) {
+            extraWidth = (front.width() - f[2]) / 2;
+        }
+        front.width(front.width() + extraWidth + 'px');
+        widthAdjusted = false;
+    }
 
 
-    productData = products['data'];
-
-    console.log('listStr')
-    var listStr = `<div class="row col-sm-12" >`;
-
-
-    $.each(productData, function(index, value) {
-        // console.log( index + ": " + value );
-        product = value;
-        listStr += `
-            <div class="col-sm-4"> 
-              <div class="product-layouts"> 
-                <div class="product-thumb transition"> 
-                  <div class="image" > 
-                    <img class="wheelImage image_thumb" src="` + baseurl + `/storage/wheel_products/` + product.prodimage + `" onError="this.onerror=null;this.src='` + baseurl + `/image/no_image.jpg';" > 
-                  </div> 
-                  <div class="thumb-description"> 
-                    <div class="caption"> 
-                      <button class="btn btn-primary" onclick="getWheelPosition(\'` + product.partno + `\')" >See On Your Car</button> 
-                    </div>
-                    <div class="thumb-description-price-details"> 
-                        <span class="price-new">Title :` + product['detailtitle'] + `</span> 
-                        <br>
-                        <span class="price-new">Starting at :` + product['price'] + `</span> 
-                    </div> 
-                  </div> 
-                </div> 
-              </div> 
-            </div>  
-        `;
-    });
-    listStr += `</div>`;
-
-    $('#Visualiser-Products-Section').html(listStr);
+    var back = $('#wheel-back');
+    back.css('left', b[0] - 11.5 + 'px');
+    back.css('top', b[1] + 8.5  + 'px');
 }
+
+
+ 

@@ -14,8 +14,8 @@ use Illuminate\Http\Request;
 
 Route::post('login', 'SiteAPILoginController@login');
 
-// Route::group(array('middleware' => ['isVerifiedClient']), function ()
-// {
+Route::group(array('middleware' => ['isVerifiedClient']), function ()
+{
 
 	Route::POST('/getVehicles', 'SiteAPIController@getVehicles'); 
 	
@@ -30,7 +30,7 @@ Route::post('login', 'SiteAPILoginController@login');
 
 	Route::POST('/setWheelVehicleFlow', 'SiteAPIController@setWheelVehicleFlow');  
 
-// });
+});
 
 
 // Route::middleware('auth:api')->get('/user', function (Request $request) {

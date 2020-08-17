@@ -376,8 +376,15 @@ class SiteAPIController extends Controller
             $products = $products->get()->unique('prodtitle');  
  
             $products = MakeCustomPaginator($products, $request, 9); 
+            
+            $listHtml = '';
 
- 
+            $flag = $request->flag;
+
+            if(@$request->listType == 'html'){
+                $listHtml = view('products-list-section', compact('products','flag','vehicle'))->render();
+            }
+
             return response()->json(['status' =>true,'data'=>[
                 'products'=>$products, 
                 'vehicle'=>$vehicle,
@@ -385,6 +392,7 @@ class SiteAPIController extends Controller
                 'offroadtype'=>$offroadtype,
                 'liftsize'=>$liftsize,
                 'flag'=>$request->flag,
+                'htmllist'=>$listHtml
 
             ]]);
  
@@ -404,7 +412,10 @@ class SiteAPIController extends Controller
     {
 
         
-        $validator = Validator::make($request->all() , ['year' => 'required|max:255', 'make' => 'required|max:255', 'model' => 'required|max:255', 'submodel' => 'required|max:255', 'wheelpartno' => 'required|max:255', ]);
+        $validator = Validator::make($request->all() , [
+         'wheelpartno' => 'required|max:255',
+         'vehicleid' => 'required|max:255'
+        ]);
 
         if ($validator->fails())
         {
@@ -414,7 +425,7 @@ class SiteAPIController extends Controller
         try
         {
 
-            $vehicle = $this->findVehicleData($request);
+            $vehicle = Vehicle::where('vehicle_id',$request->vehicleid)->first();
             $carimage = null;
             $car_images = null;
             $detectimage = null;
