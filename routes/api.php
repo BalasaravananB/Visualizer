@@ -14,20 +14,23 @@ use Illuminate\Http\Request;
 
 Route::post('login', 'SiteAPILoginController@login');
 
-Route::group(['middleware' => 'jwt.auth'], function() {
-    
+// Route::group(array('middleware' => ['isVerifiedClient']), function ()
+// {
+
+	Route::POST('/getVehicles', 'SiteAPIController@getVehicles'); 
 	
+	Route::POST('/findVehicle', 'SiteAPIController@findVehicle'); 
+	
+	Route::POST('/getLiftSizes', 'SiteAPIController@getLiftSizes'); 
 
-});
+	Route::POST('/getWheels', 'SiteAPIController@getWheels');  
 
-Route::POST('/getVehicles', 'SiteAPIController@getVehicles'); 
-
-Route::POST('/getWheels', 'SiteAPIController@getWheels');  
-
-Route::POST('/WheelByVehicle', 'SiteAPIController@WheelByVehicle');  
+	Route::POST('/WheelByVehicle', 'SiteAPIController@WheelByVehicle');  
 
 
-Route::POST('/setWheelVehicleFlow', 'SiteAPIController@setWheelVehicleFlow');  
+	Route::POST('/setWheelVehicleFlow', 'SiteAPIController@setWheelVehicleFlow');  
+
+// });
 
 
 // Route::middleware('auth:api')->get('/user', function (Request $request) {

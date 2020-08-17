@@ -18,186 +18,24 @@ use Illuminate\Http\Request;
 use Validator;
 use Session;
 use Log;
+use Illuminate\Pagination\LengthAwarePaginator as Paginator;
+use App\Http\Controllers\ZipcodeController as Zipcode;
+
 class SiteAPIController extends Controller
 {
 
-    public $is_valid = true;
-    public $error_message = '';
 
     public function __construct(Request $request)
     {
-        if ($request->has('accesstoken'))
-        {
-
-            $site = ClientSite::where('accesstoken', $request->accesstoken)
-                ->first();
-            if ($site != null)
-            {
-                $host_token = base64_decode(base64_decode($request->accesstoken));
-                $requestHost = parse_url($request
-                    ->headers
-                    ->get('origin') , PHP_URL_HOST);
-
-                if ($requestHost != $host_token)
-                {
-                    $this->is_valid = false;
-                    $this->error_message = 'You couldn\'t access from Invalid Site!!';
-                }
-            }
-            else
-            {
-                $this->is_valid = false;
-                $this->error_message = 'Token is Invalid!!';
-            }
-        }
-        else
-        {
-            $this->is_valid = false;
-            $this->error_message = 'Access Token is Required!!';
-        }
-
-        // $this->middleware('admin.guest', ['except' => 'logout']);
+       
+ 
         
     }
 
-    public function WheelByVehicle(Request $request)
-    {
-
-        if (!$this->is_valid)
-        {
-            return ['status' => $this->is_valid, 'message' => $this->error_message];
-        }
-
-        $validator = Validator::make($request->all() , ['year' => 'required|max:255', 'make' => 'required|max:255', 'model' => 'required|max:255', 'submodel' => 'required|max:255', 'wheelpartno' => 'required|max:255', ]);
-
-        if ($validator->fails())
-        {
-
-            return ['status' => false, 'error' => $validator->messages() ];
-        }
-        try
-        {
-
-            $vehicle = $this->findVehicle($request);
-            $carimage = null;
-            $car_images = null;
-            $detectimage = null;
-            $wheel = null;
-            $frontback = null;
-            if ($vehicle == null)
-            {
-                return ['status' => false, 'message' => 'Vehicle Not Found!'];
-
-            }
-            if (@$vehicle->vif != null)
-            {
-                $car_images = CarImage::select('car_id', 'image', 'color_code')->wherecar_id(@$vehicle->vif)
-                    ->where('image', 'LIKE', '%.png%')->with(['CarViflist' => function ($query)
-                {
-                    $query->select('vif', 'yr', 'make', 'model', 'body', 'drs', 'whls');
-
-                }
-                , 'CarColor'])
-                    ->first();
-                $carimage = asset($car_images->image);
-                $detectimage = public_path() . '/' . $car_images->image;
-            }
-
-            if ($request->wheelpartno)
-            {
-                $wheelpro = WheelProduct::with('wheel')->where('partno', $request->wheelpartno)
-                    ->first();
-                // dd($wheelpro->wheel);
-                if ($wheelpro)
-                {
-                    if (@$wheelpro->wheel)
-                    {
-                        $frontback = front_back_path(@$wheelpro
-                            ->wheel
-                            ->image);
-                    }
-                    else
-                    {
-                        $frontback = front_back_path(@$wheelpro->prodimage);
-                    }
-                }
-                else
-                {
-
-                    return ['status' => false, 'message' => 'Wheel Product Not Found!'];
-                }
-            }
-
-            Log::info('Process Initiate');
-            $process = new Process("python3 " . public_path() . "/js/detect-wheel.py " . $detectimage . " " . public_path() . " " . @$car_images->carid);
-
-            $process->run();
-            Log::info('Process Run');
-            // $process->setIdleTimeout(60);
-            // executes after the command finishes
-            Log::info('Condition Check');
-            if ($process->isSuccessful())
-            {
-
-            	Log::info('Run Successful');
-                $position = json_encode($process->getOutput());
-            }
-            else
-            {
-
-            	Log::info('Run Fail Part');
-                $position = [[301.4070587158203, 313.35447692871094, 62.829010009765625, 99.53854370117188, 269.9925537109375, 263.585205078125, 269.9925537109375, 263.585205078125], [526.0646209716797, 293.32891845703125, 42.812530517578125, 79.39599609375, 504.6583557128906, 253.63092041015625, 504.6583557128906, 253.63092041015625]];
-
-            }
-
-            	Log::info('Response Binded');
-            $data = ['baseurl' => asset('/') , 'vehicle' => $vehicle->year_make_model_submodel, 'carimage' => $carimage, 'frontimage' => asset($frontback) , 'backimage' => asset($frontback) , 'position' => $position];
-            return ['status' => true, 'data' => $data, ];
-        }
-        catch(Exception $e)
-        {
-            return ['status' => false, 'message' => 'Something went wrong!'];
-        }
-    }
-
-    public function findVehicle($data)
-    {
-        $vehicle = Vehicle::with('Plussizes', 'ChassisModels', 'Offroads')->select('vehicle_id', 'vif', 'year', 'make', 'model', 'submodel', 'dr_chassis_id', 'dr_model_id', 'year_make_model_submodel', 'sort_by_vehicle_type', 'wheel_type', 'rf_lc', 'offroad', 'dually')
-            ->where('year', $data->year)
-            ->where('make', $data->make)
-            ->where('model', $data->model);
-
-        if (@$data->submodel)
-        {
-
-            $submodelBody = explode('-', $data->submodel);
-            // dd($submodelBody);
-            if (count($submodelBody) == 2)
-            {
-
-                $vehicle = $vehicle->where('submodel', $submodelBody[0])->where('body', $submodelBody[1]);
-            }
-            elseif (count($submodelBody) == 3)
-            {
-
-                $vehicle = $vehicle->where('submodel', $submodelBody[0] . '-' . $submodelBody[1])->where('body', $submodelBody[2]);
-            }
-        }
-        $vehicle = $vehicle->orderBy('offroad', 'desc')
-            ->orderBy('dually', 'desc')
-            ->first();
-        return $vehicle;
-    }
 
     public function getVehicles(Request $request)
     {
-
-        if (!$this->is_valid)
-        {
-            return ['status'=>$this->is_valid,'message'=>$this->error_message];
-            // return response()
-            //     ->json(['error' => $this->error_message]);
-        }
+            
         try
         {
             $vehicle = new Vehicle;
@@ -238,87 +76,252 @@ class SiteAPIController extends Controller
             if ($request->changeBy == '')
             {
                 return response()
-                    ->json(['data' => $allData]);
+                    ->json(['status'=>true,'data' => $allData]);
             }
-            return response()->json(['data' => $data]);
+            return response()->json(['status'=>true,'data' => $data]);
 
         }
+
         catch(ModelNotFoundException $notfound)
         {
-            return response()->json(['error' => $notfound->getMessage() ]);
+            return response()->json(['status' =>false,'message' => $notfound->getMessage() ]);
         }
         catch(Exception $error)
         {
-            return response()->json(['error' => $error->getMessage() ]);
+            return response()->json(['status' =>false,'message' => $error->getMessage() ]);
         }
     }
 
 
 
+    public function findVehicle(Request $request){
+         
+        $vehicle = $this->findVehicleData($request);
+
+        if($vehicle){
+            return response()->json(['status'=>true,'data'=>[
+
+                    'vehicle'=>$vehicle,
+                    'offroad'=>@$vehicle->offroad??null,
+                ]
+            ]);
+        }else{
+
+            return response()->json(['status' =>false,'message' => "Vehicle Not Found!!"]);
+        }
+    }
+
+
+
+    public function getLiftSizes(Request $request){
+         
+        $liftsizes = Offroad::where('offroadid',@$request->offroadid)->whereNotIn('plussizetype',['Levelkit'])->select('plussizetype')->distinct('plussizetype')->pluck('plussizetype'); 
+
+        $newLiftSizes = array();
+        
+        foreach ($liftsizes as $key => $size) {
+            $newSize = str_replace('lift', '" Lift', $size);
+            $newLiftSizes[$size]=$newSize;
+        }
+
+
+        return response()->json([
+            'status'=>true,
+            'data'=>$newLiftSizes]);
+
+    
+
+    }
+
+
+
+    public function zipcodeUpdate(Request $request)
+    { 
+
+    }
+
+    public function zipcodeClear(Request $request)
+    {  
+    }
+
 
     public function getWheels(Request $request)
     {
-  		if (!$this->is_valid)
-        {
-            return ['status'=>$this->is_valid,'message'=>$this->error_message];
-            
+        
+        if($request->flag == 'searchByWheelSize'){
+
+            $validatorRules =[
+                'wheeldiameter'=>'required',
+                'wheelwidth'=>'required',
+                'boltpattern'=>'required', 
+            ];
+ 
+        }elseif($request->flag == 'searchByWheelSize'){
+ 
+            $validatorRules =[
+                'vehicleid'=>'required',
+                'flag'=>'required'
+            ];
+ 
+        }else{
+
+            $validatorRules =[];
         }
 
-   		try
+
+        $validator = Validator::make($request->all() ,$validatorRules);
+        if ($validator->fails())
+        {
+            return response()->json(['status' => false, 'error' => $validator->messages() ]);
+        }
+
+        try
         { 
-            $vehicle = $this->findVehicle($request);
+            $vehicle = Vehicle::where('vehicle_id',$request->vehicleid)->first();
 
+            if($vehicle == null && $request->flag == 'searchByVehicle'){
+                return response()->json(['status' =>false,'message' => 'Vehicle Not Found!!' ]);
+            }
 
+  
+            $zipcode = @$request->zipcode;//Session::get('user.zipcode');
+
+            if($request->flag == 'searchByWheelSize'){ 
+                Session::put('user.searchByWheelSize',$request->all());
+            } 
+ 
             $products = WheelProduct::with('wheel')->select('id', 'prodbrand','detailtitle', 'prodmodel', 'prodfinish', 'prodimage', 'wheeldiameter', 'wheelwidth', 'prodtitle', 'price', 'partno','partno_old','wheeltype','rf_lc','boltpattern1','offset1','offset2','boltpattern1','wheeltype');
  
-   
- 
-  
-            $chassis_models = ChassisModel::where('model_id', @$vehicle->dr_model_id)->first(); 
 
-            $chassis = Chassis::where('chassis_id', @$vehicle->dr_chassis_id)->first(); 
+ 
+            // $car_images='';
+            $offroadtype=null;
+            $liftsize=null;
+
+            // if(@$request->wheeltype){
+            //     $wheeltype = base64_decode($request->wheeltype);
+            //     // dd($wheeltype);
+            //     if($request->wheeltype){
+            //         $products = $products->where('wheeltype','LIKE','%'.$wheeltype.'%');  
+            //     }
+            // }
+             
+
+            // Search By Wheels Size in products
+            if (isset($request->flag) && $request->flag == 'searchByWheelSize')
+            {
+
+                if (isset($request->wheeldiameter) && $request->wheeldiameter) 
+                    $products = $products->where('wheeldiameter', $request->wheeldiameter);
+
+                if (isset($request->wheelwidth) && $request->wheelwidth) 
+                    $products = $products->where('wheelwidth', $request->wheelwidth);
+
+                if (isset($request->boltpattern) && $request->boltpattern) 
+                    $products = $products->where('boltpattern1', $request->boltpattern);
+                    // ->orWhere('boltpattern2', $request->boltpattern)
+                    // ->orWhere('boltpattern3', $request->boltpattern);
+
+                if (isset($request->minoffset) && $request->minoffset) 
+                    $products = $products->where('offset1','>=', $request->minoffset);
+                    // $products = $products->whereBetween('offset1', [$request->minoffset, $request->maxoffset]);
+
+                if (isset($request->maxoffset) && $request->maxoffset) 
+                    $products = $products->where('offset1','<=',$request->maxoffset);
+            }
+            elseif (isset($request->flag) && $request->flag == 'searchByVehicle')
+            {
+
+                // $vehicle = Session::get('user.vehicle');
+                $liftsize = @$request->liftsize; //Session::get('user.liftsize');
+                $offroadtype =@$request->offroadtype; //Session::get('user.offroadtype');
+                    
+                    // dd($liftsize);
+
+                if(@$vehicle->dually =='1' && ($offroadtype == 'stock' || $offroadtype == null)){
+                    $products->where('wheeltype','LIKE','%D%'); 
+                }
+ 
+            
+                //Offroad Checking Flow for Shop by Vehicle
+
+                $offroadSizes = [];
+
+                if(@$liftsize){
+
+                    $offroadSizes = Offroad::where('offroadid',@$vehicle->offroad)->where('plussizetype',$liftsize)->get(); 
+                }
+
+
+
+                // // Wheel Visualiser Flow for Shop by Vehicle
+                // if(@$vehicle->vif != null){
+                //     $car_images = CarImage::select('car_id','image','color_code')->wherecar_id(@$vehicle->vif)->where('image', 'LIKE', '%.png%')
+                //     ->with(['CarViflist' => function($query) {
+                //         $query->select('vif', 'yr','make','model','body','drs','whls');
+
+                //     },'CarColor'])->first();
+                // }
+ 
+                $chassis_models = ChassisModel::where('model_id', @$vehicle->dr_model_id)->first();
  
 
-                //*********************** Offset checking **************************
-                
-                if(@$chassis_models->rim_size_r == null || @$chassis_models->rim_size_r == 'NULL'){
-                    $products = $products->whereBetween('offset1', [$chassis->min_et_front, $chassis->max_et_front]);
+                $chassis = Chassis::where('chassis_id', @$vehicle->dr_chassis_id)->first(); 
+
+                 
+                if(@$liftsize){
+                     
+                        $products = $products->where(function ($query) use($offroadSizes) {
+                             
+                            foreach ($offroadSizes as $key => $offroadSize) {  
+                                $query->orwhere('detailtitle', 'like',  '%' . $offroadSize->wheeldiameter.'x'.$offroadSize->wheelwidth .'%')->whereBetween('offset1', [$offroadSize->offsetmin, $offroadSize->offsetmax]);
+                             }      
+                        });  
                 }else{
 
-                    $products = $products->whereBetween('offset1', [$chassis->min_et_front, $chassis->max_et_front]);
-                    $products = $products->whereBetween('offset1', [$chassis->min_et_rear, $chassis->max_et_rear]);
+
+
+                        //*********************** Offset checking **************************
+                        
+                        if($chassis_models->rim_size_r == null || $chassis_models->rim_size_r == 'NULL'){
+                            $products = $products->whereBetween('offset1', [$chassis->min_et_front, $chassis->max_et_front]);
+                        }else{
+
+                            $products = $products->whereBetween('offset1', [$chassis->min_et_front, $chassis->max_et_front]);
+                            $products = $products->whereBetween('offset1', [$chassis->min_et_rear, $chassis->max_et_rear]);
+                        }
+
+                        //*********************** Plus Size checking **************************
+
+
+                        $plusSizes = PlusSize::where('chassis_id',@$vehicle->dr_chassis_id)->get(); 
+
+
+                        $plusSizesArray=array(); $diameterSizesArray=array();
+
+                        $rimsizearray = explode('x', $chassis_models->rim_size);
+                        $widthPart2 = $widthPart1 = str_replace(" ", "", $rimsizearray[0])?:$rimsizearray[0];
+                        $diameterPart2 = $diameterPart1 = str_replace(" ", "", $rimsizearray[1])?:$rimsizearray[1];
+
+                        foreach ($plusSizes as $key => $plusSize) {
+                            
+                            $wheelsizearray = explode('x', $plusSize->wheel_size);
+                            $width = str_replace(" ", "", $wheelsizearray[0])?:$wheelsizearray[0];
+                            $diameter = str_replace(" ", "", $wheelsizearray[1])?:$wheelsizearray[1];
+                            if($width > $widthPart2 ){
+                                $widthPart2 = $width;
+                            }
+                            if($diameter > $diameterPart2 ){
+                                $diameterPart2 = $diameter;
+                            }
+                        }
+
+                        // dd([$diameterPart1,$diameterPart2],[$widthPart1,$widthPart2]);
+                        $products = $products->whereBetween('wheeldiameter',[$diameterPart1,$diameterPart2]);
+                        $products = $products->whereBetween('wheelwidth',[$widthPart1,$widthPart2]);
+
                 }
 
-                //*********************** Plus Size checking **************************
-
-
-                $plusSizes = PlusSize::where('chassis_id',@$vehicle->dr_chassis_id)->get(); 
-
-
-                $plusSizesArray=array(); $diameterSizesArray=array();
-
-                $rimsizearray = explode('x', $chassis_models->rim_size);
-                $widthPart2 = $widthPart1 = str_replace(" ", "", $rimsizearray[0])?:$rimsizearray[0];
-                $diameterPart2 = $diameterPart1 = str_replace(" ", "", $rimsizearray[1])?:$rimsizearray[1];
-
-                foreach ($plusSizes as $key => $plusSize) {
-                    
-                    $wheelsizearray = explode('x', $plusSize->wheel_size);
-                    $width = str_replace(" ", "", $wheelsizearray[0])?:$wheelsizearray[0];
-                    $diameter = str_replace(" ", "", $wheelsizearray[1])?:$wheelsizearray[1];
-                    if($width > $widthPart2 ){
-                        $widthPart2 = $width;
-                    }
-                    if($diameter > $diameterPart2 ){
-                        $diameterPart2 = $diameter;
-                    }
-                }
-
-                // dd([$diameterPart1,$diameterPart2],[$widthPart1,$widthPart2]);
-                $products = $products->whereBetween('wheeldiameter',[$diameterPart1,$diameterPart2]);
-                $products = $products->whereBetween('wheelwidth',[$widthPart1,$widthPart2]);
-
-                
 
                 //*********************** BCD Bolt Pattern checking **************************
                 if (strpos($chassis->pcd, '.') !== false)
@@ -334,50 +337,198 @@ class SiteAPIController extends Controller
                 if($boltpattern != ''){
                     $products = $products->whereIn('boltpattern1', [$boltpattern,'Blank5']);
                 }
+
+                // $request->flag = 'searchByWheelSize';
+                // dd($plusSizesArray,$boltpattern,$diameterPart);
+            }
+
  
+
+            // if zipcode is available....
+            if($zipcode != null){
+                $zipcodes = Zipcode::getZipcodesByRadius($zipcode,'150'); 
+                $products = $products->with([
+                                    'DropshipperInventories'=>function ($query) use($zipcodes){ 
+                                                            $query->where('qty','>=',4); 
+                                                            $query->Where(function ($query1) use($zipcodes) { 
+                                                                foreach ($zipcodes as $key => $zipcode) {
+                                                                    $query1->orwhere('zip', 'like',  '%' . $zipcode.'%');
+                                                                }     
+                                                            });  
+                                                            $query->orderBy('qty','DESC'); 
+                                    }
+                                ])
+   
+                ->orderBy('price', 'ASC'); 
  
+            }else{
+
+
                 $products = $products->with([
                                      'DropshipperInventories'=>function ($query){ 
                                                             $query->where('qty','>=',4); 
                                                             $query->orderBy('qty','DESC'); 
                                     }
                                 ])
-                ->orderBy('price', 'ASC'); 
+                ->orderBy('price', 'ASC');
+            }                       
          
             $products = $products->get()->unique('prodtitle');  
  
-            $products = MakeCustomPaginator($products, $request, 12); 
+            $products = MakeCustomPaginator($products, $request, 9); 
 
-            return ['status' =>true,'data'=>[
-            	'products'=>$products, 
-            	'vehicle'=>$vehicle,
-            ] ];
+ 
+            return response()->json(['status' =>true,'data'=>[
+                'products'=>$products, 
+                'vehicle'=>$vehicle,
+                'zipcode'=>$zipcode,
+                'offroadtype'=>$offroadtype,
+                'liftsize'=>$liftsize,
+                'flag'=>$request->flag,
+
+            ]]);
  
 
         }
         catch(ModelNotFoundException $notfound)
         {
-            return response()->json(['error' => $notfound->getMessage() ]);
+            return response()->json(['status' =>false,'message' => $notfound->getMessage() ]);
         }
         catch(Exception $error)
         {
-            return response()->json(['error' => $error->getMessage() ]);
+            return response()->json(['status' =>false,'message' => $error->getMessage() ]);
         }
     }
 
+    public function WheelByVehicle(Request $request)
+    {
 
-
-    public function getLiftSizes(Request $request){
         
-        $vehicle = Session::get('user.vehicle'); 
+        $validator = Validator::make($request->all() , ['year' => 'required|max:255', 'make' => 'required|max:255', 'model' => 'required|max:255', 'submodel' => 'required|max:255', 'wheelpartno' => 'required|max:255', ]);
 
-        $liftsizes = Offroad::where('offroadid',@$vehicle->offroad)->whereNotIn('plussizetype',['Levelkit'])->select('plussizetype')->distinct('plussizetype')->pluck('plussizetype'); 
+        if ($validator->fails())
+        {
 
-        return $liftsizes?:null;
+            return response()->json(['status' => false, 'error' => $validator->messages() ]);
+        }
+        try
+        {
 
-    
+            $vehicle = $this->findVehicleData($request);
+            $carimage = null;
+            $car_images = null;
+            $detectimage = null;
+            $wheel = null;
+            $frontback = null;
+            if ($vehicle == null)
+            {
+                return response()->json(['status' => false, 'message' => 'Vehicle Not Found!']);
 
+            }
+            if (@$vehicle->vif != null)
+            {
+                $car_images = CarImage::select('car_id', 'image', 'color_code')->wherecar_id(@$vehicle->vif)
+                    ->where('image', 'LIKE', '%.png%')->with(['CarViflist' => function ($query)
+                {
+                    $query->select('vif', 'yr', 'make', 'model', 'body', 'drs', 'whls');
+
+                }
+                , 'CarColor'])
+                    ->first();
+                $carimage = asset($car_images->image);
+                $detectimage = public_path() . '/' . $car_images->image;
+            }
+
+            if ($request->wheelpartno)
+            {
+                $wheelpro = WheelProduct::with('wheel')->where('partno', $request->wheelpartno)
+                    ->first();
+                // dd($wheelpro->wheel);
+                if ($wheelpro)
+                {
+                    if (@$wheelpro->wheel)
+                    {
+                        $frontback = front_back_path(@$wheelpro
+                            ->wheel
+                            ->image);
+                    }
+                    else
+                    {
+                        $frontback = front_back_path(@$wheelpro->prodimage);
+                    }
+                }
+                else
+                {
+
+                    return response()->json(['status' => false, 'message' => 'Wheel Product Not Found!']);
+                }
+            }
+
+            Log::info('Process Initiate');
+            $process = new Process("python3 " . public_path() . "/js/detect-wheel.py " . $detectimage . " " . public_path() . " " . @$car_images->carid);
+
+            $process->run();
+            Log::info('Process Run');
+            // $process->setIdleTimeout(60);
+            // executes after the command finishes
+            Log::info('Condition Check');
+            if ($process->isSuccessful())
+            {
+
+            	Log::info('Run Successful');
+                $position = json_encode($process->getOutput());
+            }
+            else
+            {
+
+            	Log::info('Run Fail Part');
+                $position = [[301.4070587158203, 313.35447692871094, 62.829010009765625, 99.53854370117188, 269.9925537109375, 263.585205078125, 269.9925537109375, 263.585205078125], [526.0646209716797, 293.32891845703125, 42.812530517578125, 79.39599609375, 504.6583557128906, 253.63092041015625, 504.6583557128906, 253.63092041015625]];
+
+            }
+
+            	Log::info('Response Binded');
+            $data = ['baseurl' => asset('/') , 'vehicle' => $vehicle->year_make_model_submodel, 'carimage' => $carimage, 'frontimage' => asset($frontback) , 'backimage' => asset($frontback) , 'position' => $position];
+            return response()->json(['status' => true, 'data' => $data ]);
+        }
+        catch(Exception $e)
+        {
+            return response()->json(['status' => false, 'message' => 'Something went wrong!']);
+        }
     }
+
+    public function findVehicleData($data)
+    {
+        $vehicle = Vehicle::with('Plussizes', 'ChassisModels', 'Offroads')->select('vehicle_id', 'vif', 'year', 'make', 'model', 'submodel', 'dr_chassis_id', 'dr_model_id', 'year_make_model_submodel', 'sort_by_vehicle_type', 'wheel_type', 'rf_lc', 'offroad', 'dually')
+            ->where('year', $data->year)
+            ->where('make', $data->make)
+            ->where('model', $data->model);
+
+        if (@$data->submodel)
+        {
+
+            $submodelBody = explode('-', $data->submodel);
+            // dd($submodelBody);
+            if (count($submodelBody) == 2)
+            {
+
+                $vehicle = $vehicle->where('submodel', $submodelBody[0])->where('body', $submodelBody[1]);
+            }
+            elseif (count($submodelBody) == 3)
+            {
+
+                $vehicle = $vehicle->where('submodel', $submodelBody[0] . '-' . $submodelBody[1])->where('body', $submodelBody[2]);
+            }
+        }
+        $vehicle = $vehicle->orderBy('offroad', 'desc')
+            ->orderBy('dually', 'desc')
+            ->first();
+        return $vehicle;
+    }
+
+
+
+
+
 
     public function checkDropshippble(Request $request){
         
@@ -388,19 +539,18 @@ class SiteAPIController extends Controller
             $dropshippable = $wheelproduct->dropshippable;
         }
 
-        return ['dropshippable'=>$dropshippable];
+        return response()->json(['status'=>true,'data'=>$dropshippable]);
 
     
 
     }
-
 
     public function setWheelVehicleFlow(Request $request){
 
         try {
             
             if($request->flag == 'searchByVehicle'){ 
-                $vehicle = $this->findVehicle($request);
+                $vehicle = $this->findVehicleData($request);
                 Session::put('user.searchByVehicle',$request->all());  
                 Session::put('user.offroadtype',null);
                 Session::put('user.liftsize',null); 
@@ -423,11 +573,11 @@ class SiteAPIController extends Controller
             $liftsize = Session::get('user.liftsize'); 
             $vehicle =  Session::get('user.vehicle'); 
 
-            return ['status'=>true,'zipcode'=>$zipcode,'offroadtype'=>$offroadtype,'liftsize'=>$liftsize,'vehicle'=>$vehicle];
+            return response()->json(['status'=>true,'zipcode'=>$zipcode,'offroadtype'=>$offroadtype,'liftsize'=>$liftsize,'vehicle'=>$vehicle]);
 
 
         } catch (Exception $e) {
-             return ['status'=>false];
+             return response()->json(['status'=>false]);
         } 
     }
 
