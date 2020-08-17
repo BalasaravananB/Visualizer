@@ -482,6 +482,14 @@ class SiteAPIController extends Controller
             Log::info('Process Run');
             // $process->setIdleTimeout(60);
             // executes after the command finishes
+
+            while ($process->isRunning()) {
+
+               Log::info('Process Running check');
+
+                // waiting for process to finish
+            }
+
             Log::info('Condition Check');
             if ($process->isSuccessful())
             {
