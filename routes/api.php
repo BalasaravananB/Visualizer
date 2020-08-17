@@ -17,6 +17,10 @@ Route::post('login', 'SiteAPILoginController@login');
 Route::group(array('middleware' => ['isVerifiedClient']), function ()
 {
 
+
+
+});
+
 	Route::POST('/getVehicles', 'SiteAPIController@getVehicles'); 
 	
 	Route::POST('/findVehicle', 'SiteAPIController@findVehicle'); 
@@ -30,9 +34,7 @@ Route::group(array('middleware' => ['isVerifiedClient']), function ()
 
 	Route::POST('/setWheelVehicleFlow', 'SiteAPIController@setWheelVehicleFlow');  
 
-});
-
-
+	
 // Route::middleware('auth:api')->get('/user', function (Request $request) {
 //     return $request->user();
 // });
