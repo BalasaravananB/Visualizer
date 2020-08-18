@@ -1,5 +1,5 @@
-// var baseurl = "http://web9.vtdns.net"; 
-var baseurl = "http://localhost:8001";
+var baseurl = "http://web9.vtdns.net"; 
+// var baseurl = "http://localhost:8001";
 var boxes;
 var allData;
 var widthAdjusted = true;
