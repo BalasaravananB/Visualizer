@@ -141,9 +141,11 @@ $('.SearchByVehicleGo').click(function(){
             if (result['status'] == false) {
                 alert(result['message']);
             }else{
+
+                vehicle = result['data']['vehicle'];
+                vehicleid = result['data']['vehicle']['vehicle_id'];
+                    
                 if(result['status']==true &&  result['data']['offroad'] != ''){
-                    vehicle = result['data']['vehicle'];
-                    vehicleid = result['data']['vehicle']['vehicle_id'];
                     offroadid = result['data']['offroad'];
                     loadOffroadView();
                 }else{
