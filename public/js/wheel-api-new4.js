@@ -1,5 +1,5 @@
-var baseurl = "http://web9.vtdns.net"; 
-// var baseurl = "http://localhost:8001";
+// var baseurl = "http://web9.vtdns.net"; 
+var baseurl = "http://localhost:8001";
 var boxes;
 var allData;
 var widthAdjusted = true;
@@ -10,22 +10,23 @@ var model = $('.model').val();
 var submodel = $('.submodel').val();
 var changeBy = '';
 
-var vehicle='';
-var vehicleid='';
-var offroadid='';
-var flag='';
-var zipcode='';
+var vehicle = '';
+var vehicleid = '';
+var offroadid = '';
+var flag = '';
+var zipcode = '';
 var offroadtype = '';
 var liftsize = '';
 var qryData = getUrlVars();
 
 var $loading = $('.se-pre-con');
+
 $(document).ready(function() {
-    if("{{$request->pagename}}"){
+    if (qryData['pagename'] == 'list') {
         getWheelsList();
         getVisualiserModal();
-    } 
-    vehicleFilters(changeBy); 
+    }
+    vehicleFilters();
 });
 
 
@@ -36,7 +37,15 @@ $(document).on('change', '.year,.make,.model', function() {
     vehicleFilters(changeBy);
 });
 
-function vehicleFilters(changeBy = '') {  
+
+function showAlert(msg) {
+    alert(msg);
+    if ($loading) {
+        $loading.fadeOut("slow");
+    }
+}
+
+function vehicleFilters(changeBy = '') {
 
     make = $('.make').val();
     year = $('.year').val();
@@ -50,16 +59,15 @@ function vehicleFilters(changeBy = '') {
         model: model,
         changeBy: changeBy,
         accesstoken: accesstoken
-    } 
-
+    }
     $.ajax({
         url: baseurl + "/api/getVehicles",
         data: data,
-        type: "POST", 
-        success: function(result) {
+        type: "POST",
+        success: function(result) { 
             if (result['status'] == false) {
 
-                alert(result['message']);
+                showAlert(result['message']);
             }
             $('.submodel').empty().append('<option disabled selected>Select Submodel</option>');
 
@@ -70,8 +78,7 @@ function vehicleFilters(changeBy = '') {
                 $('.year').empty().append('<option disabled selected>Select Year</option>');
             }
 
-            if (changeBy == '') {
-                console.log(result)
+            if (changeBy == '') { 
                 result.data['make'].map(function(value, key) {
                     isSelected = (value.make == make) ? 'selected' : '';
                     $('.make').append('<option value="' + value.make + '" ' + isSelected + '>' + value.make + '</option>');
@@ -107,17 +114,15 @@ function vehicleFilters(changeBy = '') {
 
 
 
-
         },
         error: function(jqXHR, textStatus, errorThrown) {
-            alert('Something Went Wrong!')
-            $loading.fadeOut("slow");
+            showAlert('Something Went Wrong!')
         }
     });
 }
 
 
-$('.SearchByVehicleGo').click(function(){
+$('.SearchByVehicleGo').click(function() {
 
     make = $('.make').val();
     year = $('.year').val();
@@ -128,41 +133,42 @@ $('.SearchByVehicleGo').click(function(){
     var data = {
         year: year,
         make: make,
-        model: model, 
-        submodel: submodel, 
+        model: model,
+        submodel: submodel,
         accesstoken: accesstoken
-    } 
+    }
 
+    $loading.show();
     $.ajax({
         url: baseurl + "/api/findVehicle",
         data: data,
-        type: "POST", 
+        type: "POST",
         success: function(result) {
             if (result['status'] == false) {
-                alert(result['message']);
-            }else{
+                showAlert(result['message']);
+            } else {
 
+                $loading.fadeOut("slow");
                 vehicle = result['data']['vehicle'];
                 vehicleid = result['data']['vehicle']['vehicle_id'];
 
-                if(result['status']==true &&  result['data']['offroad'] != ''){
+                if (result['status'] == true && result['data']['offroad'] != '') {
                     offroadid = result['data']['offroad'];
                     loadOffroadView();
-                }else{
+                } else {
 
                     flag = 'searchByVehicle';
-                    loadZipcodeView(); 
+                    loadZipcodeView();
                 }
-            } 
+            }
         },
         error: function(jqXHR, textStatus, errorThrown) {
-            alert('Something Went Wrong!')
-            $loading.fadeOut("slow");
+            showAlert('Something Went Wrong!')
         }
     });
 })
 
-function loadOffroadView(){
+function loadOffroadView() {
     $('#Offroad-View-Section').html(`
 
                 <div class="modal" id="offroadTypeModal" role="dialog">
@@ -177,7 +183,7 @@ function loadOffroadView(){
                                     
                                     <div style="text-align: center;">
                                         <div class="btn btn-info select-offroad" data-offroad="levelkit">
-                                            <img src="`+baseurl+`/image/lifttype.jpg" >
+                                            <img src="` + baseurl + `/image/lifttype.jpg" >
                                             <br>
                                             <h3 style="color: white !important">Leveling Kit</h3>
                                         </div> 
@@ -186,7 +192,7 @@ function loadOffroadView(){
                                                        <br>                                 
                                     <div style="text-align: center;">    
                                         <div class="btn btn-info select-offroad" data-offroad="lift">
-                                            <img src="`+baseurl+`/image/lifttype.jpg" >
+                                            <img src="` + baseurl + `/image/lifttype.jpg" >
                                             <br>
                                             <h3 style="color: white !important">Lift Kit</h3>
                                         </div>
@@ -195,7 +201,7 @@ function loadOffroadView(){
                                     <div style="text-align: center;"> 
                                         <div class="btn btn-info select-offroad" data-offroad="stock">
 
-                                            <img src="`+baseurl+`/image/lifttype.jpg" >
+                                            <img src="` + baseurl + `/image/lifttype.jpg" >
                                             <br>
                                             <h3 style="color: white !important">Stock</h3>
                                         </div>
@@ -213,57 +219,60 @@ function loadOffroadView(){
 }
 
 
-$(document).on('click','.select-offroad',function(){
+$(document).on('click', '.select-offroad', function() {
 
     $("#offroadTypeModal").modal('hide');
-    
-    offroadtype = $(this).data('offroad'); 
-    
-    if(offroadtype != 'lift'){
-        if(offroadtype == 'levelkit'){
-            liftsize ='Levelkit'
+
+    offroadtype = $(this).data('offroad');
+
+    if (offroadtype != 'lift') {
+        if (offroadtype == 'levelkit') {
+            liftsize = 'Levelkit'
         }
 
         flag = 'searchByVehicle';
-        loadZipcodeView(); 
-    }else{
+        loadZipcodeView();
+    } else {
         var data = {
-            offroadid:offroadid,
-            accesstoken:accesstoken
+            offroadid: offroadid,
+            accesstoken: accesstoken
         };
 
         console.log(data);
+
+        $loading.show();
         $.ajax({
             url: baseurl + "/api/getLiftSizes",
             data: data,
-            type: "POST", 
+            type: "POST",
             success: function(result) {
                 if (result['status'] == false) {
-                    alert(result['message']);
-                }else{
-                    if(result['status']==true ){
+                    showAlert(result['message']);
+                } else {
+
+                    $loading.fadeOut('slow');
+                    if (result['status'] == true) {
                         console.log(result)
                         loadOffroadSizeView(result['data']);
-                    }else{
+                    } else {
                         flag = 'searchByVehicle';
-                        loadZipcodeView(); 
+                        loadZipcodeView();
                     }
-                } 
+                }
             },
             error: function(jqXHR, textStatus, errorThrown) {
-                alert('Something Went Wrong!')
-                $loading.fadeOut("slow");
+                showAlert('Something Went Wrong!')
             }
         });
     }
 
 });
 
- 
 
-function loadOffroadSizeView(data){
 
-    var loadSizeStr=`
+function loadOffroadSizeView(data) {
+
+    var loadSizeStr = `
                 <div class="modal" id="liftsizeModal" role="dialog">
                     <div class="modal-dialog tire-view">
                         <div class="modal-content">
@@ -274,12 +283,12 @@ function loadOffroadSizeView(data){
                             <div class="modal-body"> 
     `;
 
-    $.each(data, function(sizekey, size ){
-        loadSizeStr+=`
+    $.each(data, function(sizekey, size) {
+        loadSizeStr += `
                                     <div style="text-align: center;"> 
-                                        <button class="btn btn-info select-liftsize" data-liftsize="`+sizekey+`">
+                                        <button class="btn btn-info select-liftsize" data-liftsize="` + sizekey + `">
 
-                                            <img src="`+baseurl+`/image/lifttype.jpg" >
+                                            <img src="` + baseurl + `/image/lifttype.jpg" >
                                             <br>
                                             <h3 style="color: white !important">` + size + `</h3>
                                         </button>
@@ -287,8 +296,8 @@ function loadOffroadSizeView(data){
                                     <br>
         `;
     });
-    
-    loadSizeStr+=`
+
+    loadSizeStr += `
 
                             </div>
                         </div>
@@ -301,17 +310,17 @@ function loadOffroadSizeView(data){
     $('#liftsizeModal').modal('show');
 }
 
-$(document).on('click','.select-liftsize',function(){
+$(document).on('click', '.select-liftsize', function() {
 
     $("#liftsizeModal").modal('hide');
-    liftsize = $(this).data('liftsize');  
+    liftsize = $(this).data('liftsize');
     flag = 'searchByVehicle';
-    loadZipcodeView(); 
+    loadZipcodeView();
 });
 
 
-function loadZipcodeView(){ 
-    if(zipcode ==''){
+function loadZipcodeView() {
+    if (zipcode == '') {
         $('#liftsizeModal').modal('hide');
         $("#Zipcode-Section").html(`
                     <div class="modal fade" id="Zipcode-Section-Modal" role="dialog">
@@ -338,7 +347,7 @@ function loadZipcodeView(){
         `);
 
         $("#Zipcode-Section-Modal").modal('show');
-    }else{
+    } else {
         redirectToList();
     }
 
@@ -346,63 +355,55 @@ function loadZipcodeView(){
 
 
 
-$(document).on('click','#update-zipcode-button',function(){
+$(document).on('click', '#update-zipcode-button', function() {
 
     $("#Zipcode-Section-Modal").modal('hide');
-        zipcode = $("#zipcode-input").val();
+    zipcode = $("#zipcode-input").val();
     redirectToList();
 });
 
-function redirectToList(){
-    window.location.href = "/products?"+
-    "make="+make+
-    "&year="+year+
-    "&model="+model+
-    "&submodel="+submodel+
-    "&vehicleid="+vehicleid+
-    "&offroadid="+offroadid+
-    "&offroadtype="+offroadtype+
-    "&liftsize="+liftsize+
-    "&flag="+flag+
-    "&zipcode="+zipcode+
-    "&pagename=list";
+function redirectToList() {
+    window.location.href = "/products?" +
+        "make=" + make +
+        "&year=" + year +
+        "&model=" + model +
+        "&submodel=" + submodel +
+        "&vehicleid=" + vehicleid +
+        "&offroadid=" + offroadid +
+        "&offroadtype=" + offroadtype +
+        "&liftsize=" + liftsize +
+        "&flag=" + flag +
+        "&zipcode=" + zipcode +
+        "&pagename=list";
 }
 
-function getUrlVars()
-{
-    var vars = [], hash;
+function getUrlVars() {
+    var vars = [],
+        hash;
     var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
-    for(var i = 0; i < hashes.length; i++)
-    {
+    for (var i = 0; i < hashes.length; i++) {
         hash = hashes[i].split('=');
         vars.push(decodeURIComponent(hash[0]));
         vars[hash[0]] = decodeURIComponent(hash[1]);
     }
     return vars;
 }
+ 
+ 
+function getWheelsList(url = '') {
 
-// function getJsonFromUrl(url) {
-//   if(!url) url = location.search;
-//   var query = url.substr(1);
-//   var result = {};
-//   query.split("&").forEach(function(part) {
-//     var item = part.split("=");
-//     result[item[0]] = decodeURIComponent(item[1]);
-//   });
-//   return result;
-// }
+    if (url == '') {
+        url = baseurl + "/api/getWheels"
+    }
 
-
-//  Driver / Body change your car 
-function getWheelsList() {  
-    var data =""; 
+    var data = "";
     var listType = 'html';
-    if(qryData['flag'] == 'searchByVehicle'){
-        data={
-            flag:'searchByVehicle',
-            vehicleid:qryData['vehicleid'],
-            zipcode:qryData['zipcode'],
-            offroadtype:qryData['offroadtype'],
+    if (qryData['flag'] == 'searchByVehicle') {
+        data = {
+            flag: 'searchByVehicle',
+            vehicleid: qryData['vehicleid'],
+            zipcode: qryData['zipcode'],
+            offroadtype: qryData['offroadtype'],
             liftsize: qryData['liftsize'],
             listType: listType,
             accesstoken: accesstoken
@@ -410,19 +411,19 @@ function getWheelsList() {
 
     }
 
-    if(qryData['flag'] == 'searchByWheelSize'){
-        data={
-            flag:searchByWheelSize, 
-            zipcode:zipcode, 
+    if (qryData['flag'] == 'searchByWheelSize') {
+        data = {
+            flag: searchByWheelSize,
+            zipcode: zipcode,
             listType: listType,
             accesstoken: accesstoken,
         }
     }
-  
-    console.log("Passed Data",data);
-    if(qryData['pagename'] == 'list'){
+
+    console.log("Passed Data");
+    if (qryData['pagename'] == 'list') {
         $.ajax({
-            url: baseurl + "/api/getWheels",
+            url: url,
             data: data,
             type: "POST",
             success: function(result) {
@@ -431,21 +432,20 @@ function getWheelsList() {
                 if (result['status'] == true) {
 
                     products = result['data']['products'];
-                    if(listType == 'html'){
+                    if (listType == 'html') {
                         listProducts(result['data']);
                     }
 
-                    // $loading.fadeOut("slow");
+                    $loading.fadeOut("slow");
 
                 } else {
 
-                    // $loading.fadeOut("slow");
-                    alert(result['message']);
+                    $loading.fadeOut("slow");
+                    showAlert(result['message']);
                 }
             },
             error: function(jqXHR, textStatus, errorThrown) {
-                alert('Something Went Wrong!')
-                // $loading.fadeOut("slow");
+                showAlert('Something Went Wrong!')
             }
         });
     }
@@ -504,25 +504,25 @@ function getVisualiserModal() {
     $('#Visualiser-Section').html(modalStr);
 }
 
-function getWheelPosition(partno = '') {
+function getWheelByVehicle(partno = '') {
 
- 
-    var data = { 
-        make:qryData['make'],
-        model:qryData['model'],
-        year:qryData['year'],
-        submodel:qryData['submodel'],
-        vehicleid:qryData['vehicleid'],
+
+    var data = {
+        make: qryData['make'],
+        model: qryData['model'],
+        year: qryData['year'],
+        submodel: qryData['submodel'],
+        vehicleid: qryData['vehicleid'],
         wheelpartno: partno,
         accesstoken: accesstoken,
     };
 
-    console.log('Object Detection',data);
- 
+    console.log('Object Detection', data);
+    $loading.show();
     $.ajax({
         url: baseurl + "/api/WheelByVehicle",
         data: data,
-        type: "POST", 
+        type: "POST",
         success: function(result) {
 
 
@@ -532,17 +532,18 @@ function getWheelPosition(partno = '') {
 
                 $loading.fadeOut("slow");
 
-
                 $("#VisualiserModal").modal("show");
-
                 WheelMapping('0')
-            } else {
+            }
 
-                $loading.fadeOut("slow");
+            $loading.fadeOut("slow");
+
+            if(result['status'] == false && result['message']){ 
+                showAlert(result['message']);
             }
         },
         error: function(jqXHR, textStatus, errorThrown) {
-            alert('Something Went Wrong!')
+            showAlert('Something Went Wrong!')
             $loading.fadeOut("slow");
         }
     });
@@ -571,8 +572,8 @@ function WheelMapping(key = '') {
     }
 
     var front = $('#visualiser-wheel-front');
-    front.css('left',f[0]-18+'px');
-    front.css('top',f[1]-1+'px');
+    front.css('left', f[0] - 18 + 'px');
+    front.css('top', f[1] - 1 + 'px');
 
     if (widthAdjusted) {
         var extraWidth = 0;
@@ -586,8 +587,20 @@ function WheelMapping(key = '') {
 
     var back = $('#visualiser-wheel-back');
     back.css('left', b[0] - 11.5 + 'px');
-    back.css('top', b[1] + 8.5  + 'px');
+    back.css('top', b[1] + 8.5 + 'px');
 }
 
-
- 
+$('body').on('click', '.pagination a', function(e) {
+    e.preventDefault();
+    $loading.show();
+    var url = $(this).attr('href');
+    getWheelsList(url);
+    // window.history.pushState("", "", url);
+});
+$('body').on('click', '.wheeldiameter,.wheelwidth', function(e) {
+    e.preventDefault();
+    $loading.show();
+    var url = baseurl+"/api/getWheels?"+$(this).attr('class')+"="+$(this).val();
+    getWheelsList(url);
+    // window.history.pushState("", "", url);
+});

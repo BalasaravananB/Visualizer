@@ -1,8 +1,108 @@
 
         <div class="row main-pro">
             <div class="col-sm-3 main-pro-inner-category">
+                <div class="header-bottom col-sm-12">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                <div class="price-heading">SIZE</div>
+                                <!--  -->
+                                <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading" role="tab" id="headingOne">
+                                            <h4 class="panel-title">
+                                                <a role="button" data-toggle="collapse" data-parent="#accordion123456" href="#collapseOne" class="{{(@Request::get('diameter'))?'':'collapsed123456'}}" aria-expanded="{{(@Request::get('diameter'))?'true':'false'}}" aria-controls="collapseOne">
+                                                    Diameter
+                                                </a>
+                                            </h4>
+                                        </div>
+                                        <div id="collapseOne" class="panel-collapse1 collapse in in123456 {{(@Request::get('diameter'))?' in':''}} " role="tabpanel" aria-labelledby="headingOne">
+                                            <div class="panel-body">
+                                                <ul style="list-style-type: none;">
+                                                    @forelse($wheeldiameter as $diameter)
+                                                    <li><input type="checkbox" name="wheeldiameter[]" class="wheeldiameter" value="{{$diameter->wheeldiameter}}" > {{$diameter->wheeldiameter.'('.$diameter->total.')'}}
+                                                    </li>
+                                                    @empty
+                                                    <li>No Diameter Available</li>
+                                                    @endforelse
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading" role="tab" id="headingTwo">
+                                            <h4 class="panel-title">
+                                                <a role="button" data-toggle="collapse" data-parent="#accordion123456" href="#collapseTwo" class="{{(@Request::get('width'))?'':'collapsed123456'}}" aria-expanded="{{(@Request::get('width'))?'true':'false'}}" aria-controls="collapseTwo">
+                                                    Width
+                                                </a>
+                                            </h4>
+                                        </div>
+                                        <div id="collapseTwo" class="panel-collapse2 collapse in in123456  {{(@Request::get('width'))?' in':''}}  " role="tabpanel" aria-labelledby="headingTwo">
+                                            <div class="panel-body">
+                                                <ul style="list-style-type: none;">
+                                                    @forelse($wheelwidth as $width)
+                                                    <li><input type="checkbox" name="wheelwidth[]" class="wheelwidth" value="{{$width->wheelwidth}}" > {{$width->wheelwidth.'('.$width->total.')'}} </li>
+                                                    @empty
+                                                    <li>No width Available</li>
+                                                    @endforelse
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>key words
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading" role="tab" id="headingThree">
+                                            <h4 class="panel-title">
+                                                <a role="button" data-toggle="collapse" data-parent="#accordion123456" href="#collapseThree" class="{{(@Request::get('brand'))?'':'collapsed123456'}}" aria-expanded="{{(@Request::get('brand'))?'true':'false'}}" aria-controls="collapseThree">
+                                                    Brand
+                                                </a>
+                                            </h4>
+                                        </div>
+                                        <div id="collapseThree" class="panel-collapse3 collapse in in123456" role="tabpanel" aria-labelledby="headingThree">
+                                            <div class="panel-body">
+                                                <ul style="list-style-type: none;">
+                                                    @forelse($brands as $brand)
+                                                    <li><input type="checkbox" name="brand[]" class="brand" value="{{$brand->prodbrand}}">
+                                                        @if(@$countsByBrand[$brand->prodbrand])
+                                                        {{$brand->prodbrand}} ( {{$countsByBrand[$brand->prodbrand]}} )
+                                                        @endif
+                                                    </li>
+                                                    @empty
+                                                    <li>No Brands Available</li>
+                                                    @endforelse
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading" role="tab" id="headingFour">
+                                            <h4 class="panel-title">
+                                                <a role="button" data-toggle="collapse" data-parent="#accordion123456" href="#collapseFour" class="{{(@Request::get('width'))?'':'collapsed123456'}}" aria-expanded="{{(@Request::get('width'))?'true':'false'}}" aria-controls="collapseFour">
+                                                    Finish
+                                                </a>
+                                            </h4>
+                                        </div>
+                                        <div id="collapseFour" class="panel-collapse4 collapse in in123456  {{(@Request::get('finish'))?' in':''}}  " role="tabpanel" aria-labelledby="headingFour">
+                                            <div class="panel-body">
+                                                <ul style="list-style-type: none;">
+                                                    @forelse($wheelfinish as $finish)
+                                                    <li><input type="checkbox" name="finish[]" class="finish" value="{{$finish->prodfinish}}" 
+                                                        > {{$finish->prodfinish.'('.$finish->total.')'}} </li>
+                                                    @empty
+                                                    <li>No Finish Available</li>
+                                                    @endforelse
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                </div>
             </div>
             <div class="col-sm-9 col-sm-9 main-pro-inner">
+                <div id="load" style="position: relative;">
+
                 <div class="row">
                   @if(@$vehicle || @$flag=='searchByWheelSize')
                   <div class="wheel-list-change-tab ">
@@ -125,7 +225,7 @@
                                             </div> -->
  
                                         <button class="btn btn-primary {{
-                                            (!file_exists(front_back_path(@$product->wheel['image'])) && !file_exists(front_back_path(@$product->prodimage)) )?'disabled':''}}" {{(!file_exists(front_back_path(@$product->wheel['image'])) && !file_exists(front_back_path(@$product->prodimage)) )?' ':'data-toggle=modal'}} data-target="#myModal{{$key}}" onclick="getWheelPosition('{{$product->partno}}')" >See On Your Car</button> 
+                                            (!file_exists(front_back_path(@$product->wheel['image'])) && !file_exists(front_back_path(@$product->prodimage)) )?'disabled':''}}" {{(!file_exists(front_back_path(@$product->wheel['image'])) && !file_exists(front_back_path(@$product->prodimage)) )?' ':'data-toggle=modal'}} data-target="#myModal{{$key}}" onclick="getWheelByVehicle('{{$product->partno}}')" >See On Your Car</button> 
                                         </div>
                                         <div class="button-group">
                                             <a href="{{url('/wheelproductview',$product->id)}}{{@$flag?'/'.$flag:''}}">
@@ -164,10 +264,10 @@
                     <div class="col-sm-6 pagi-left">
                         <p>{{(@$products->total())?@$products->total().' Wheels Found':''}} </p>
                     </div>
-                   <!--  <div class="col-sm-6 pagi-right">
+                    <div class="col-sm-6 pagi-right">
                         {{$products->appends([ 'diameter' => @Request::get('diameter'), 'width' => @Request::get('width'), 'brand' => @Request::get('brand'), 'car_id' => @Request::get('car_id'), 'page' => @Request::get('page'), 'flag' => @Request::get('flag'), 'make' => @Request::get('make'), 'year' => @Request::get('year'), 'model' => @Request::get('model'), 'submodel' => @Request::get('submodel'), 'zip' => @Request::get('zip'), 'wheeldiameter'=> @Request::get('wheeldiameter'), 'wheelwidth'=> @Request::get('wheelwidth'), 'boltpattern'=> @Request::get('boltpattern'), 'minoffset'=> @Request::get('minoffset'), 'maxoffset'=> @Request::get('maxoffset'),'liftsize' => @Request::get('liftsize'), ])->links()}}
 
-                    </div> -->
+                    </div>
                 </div>
 
             </div>

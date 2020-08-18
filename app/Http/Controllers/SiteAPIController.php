@@ -373,6 +373,97 @@ class SiteAPIController extends Controller
             //     ->orderBy('price', 'ASC');
             // }                       
          
+            // ----------------------------------------------------------------------------------------------------
+            // Wheel Width size search in the Sidebar
+            $wheelwidth = clone $products;
+
+            if (isset($request->brand) && $request->brand) {
+                $wheelwidth = $wheelwidth->whereIn('prodbrand', $request->brand);
+            }
+
+            if (isset($request->diameter) && $request->diameter) {
+                $wheelwidth = $wheelwidth->whereIn('wheeldiameter', $request->diameter);
+            }
+            
+            if (isset($request->finish) && $request->finish) {
+                $wheelwidth = $wheelwidth->whereIn('prodfinish', $request->finish);
+            }
+
+            $wheelwidth =  $wheelwidth->select('wheelwidth', \DB::raw('count(DISTINCT prodtitle) as total'))
+            ->groupBy('wheelwidth')
+            ->get()
+            ->sortBy('wheelwidth');
+
+            // Wheel Diameter size search in the Sidebar
+
+            $wheeldiameter = clone $products;
+            // dd($wheeldiameter);
+            if (isset($request->brand) && $request->brand) {
+                $wheeldiameter = $wheeldiameter->whereIn('prodbrand', $request->brand);
+            }
+
+            if (isset($request->width) && $request->width) {
+                $wheeldiameter = $wheeldiameter->whereIn('wheelwidth', $request->width);
+            }
+            
+            if (isset($request->finish) && $request->finish) {
+                $wheeldiameter = $wheeldiameter->whereIn('prodfinish', $request->finish);
+            }
+
+            $wheeldiameter =  $wheeldiameter->select('wheeldiameter', \DB::raw('count(DISTINCT prodtitle) as total'))
+            ->groupBy('wheeldiameter')
+            ->get()
+            ->sortBy('wheeldiameter');
+
+
+            // Wheel Brands size search in the Sidebar
+
+            $countsByBrand = clone $products;
+            
+            if (isset($request->diameter) && $request->diameter) {
+                $countsByBrand = $countsByBrand->whereIn('wheeldiameter', $request->diameter);
+            }
+
+            if (isset($request->width) && $request->width) {
+                $countsByBrand = $countsByBrand->whereIn('wheelwidth', $request->width);
+            }
+
+            if (isset($request->finish) && $request->finish) {
+                $countsByBrand = $countsByBrand->whereIn('prodfinish', $request->finish);
+            }
+            
+            $brands =  $countsByBrand->select('prodbrand')
+            ->groupBy('prodbrand')
+            ->get()
+            ->sortBy('prodbrand');
+            
+            $countsByBrand = $countsByBrand->select('prodbrand', \DB::raw('count(DISTINCT prodtitle) as total'))
+            ->groupBy('prodbrand')
+            ->pluck('total','prodbrand');
+
+            // Wheel Finish size search in the Sidebar
+
+            $wheelfinish = clone $products;
+
+            if (isset($request->brand) && $request->brand) {
+                $wheelfinish = $wheelfinish->whereIn('prodbrand', $request->brand);
+            }
+
+            if (isset($request->diameter) && $request->diameter) {
+                $wheelfinish = $wheelfinish->whereIn('wheeldiameter', $request->diameter);
+            }
+            
+            if (isset($request->width) && $request->width) {
+                $wheelfinish = $wheelfinish->whereIn('wheelwidth', $request->width);
+            }
+
+            $wheelfinish =  $wheelfinish->select('prodfinish', \DB::raw('count(DISTINCT prodtitle) as total'))
+            ->groupBy('prodfinish')
+            ->get()
+            ->sortBy('prodfinish');
+            // --------------------------------------------------------------------------------------------------
+
+
             $products = $products->orderBy('price', 'ASC')->get()->unique('prodtitle');  
  
             $products = MakeCustomPaginator($products, $request, 9); 
@@ -382,7 +473,7 @@ class SiteAPIController extends Controller
             $flag = $request->flag;
 
             if(@$request->listType == 'html'){
-                $listHtml = view('products-list-section', compact('products','flag','vehicle'))->render();
+                $listHtml = view('products-list-section', compact('products','flag','vehicle','wheelwidth','wheeldiameter','countsByBrand','wheelfinish','brands'))->render();
             }
 
             return response()->json(['status' =>true,'data'=>[
@@ -452,6 +543,11 @@ class SiteAPIController extends Controller
                 }
                 , 'CarColor'])
                     ->first();
+                if ($car_images == null)
+                {
+                    return response()->json(['status' => false, 'message' => 'Vehicle Image Not Found!']);
+
+                }
                 $carimage = asset($car_images->image);
                 $detectimage = public_path() . '/' . $car_images->image;
             }
