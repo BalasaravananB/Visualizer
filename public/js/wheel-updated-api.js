@@ -226,7 +226,8 @@ $(document).on('click','.select-offroad',function(){
         loadZipcodeView(); 
     }else{
         var data = {
-            offroadid:offroadid
+            offroadid:offroadid,
+            accesstoken:accesstoken
         };
 
         console.log(data);
