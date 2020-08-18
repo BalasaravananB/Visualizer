@@ -156,7 +156,7 @@ class SiteAPIController extends Controller
                 'boltpattern'=>'required', 
             ];
  
-        }elseif($request->flag == 'searchByWheelSize'){
+        }elseif($request->flag == 'searchByVehicle'){
  
             $validatorRules =[
                 'vehicleid'=>'required',
@@ -186,9 +186,9 @@ class SiteAPIController extends Controller
   
             $zipcode = @$request->zipcode;//Session::get('user.zipcode');
 
-            if($request->flag == 'searchByWheelSize'){ 
-                Session::put('user.searchByWheelSize',$request->all());
-            } 
+            // if($request->flag == 'searchByWheelSize'){ 
+            //     Session::put('user.searchByWheelSize',$request->all());
+            // } 
  
             $products = WheelProduct::with('wheel')->select('id', 'prodbrand','detailtitle', 'prodmodel', 'prodfinish', 'prodimage', 'wheeldiameter', 'wheelwidth', 'prodtitle', 'price', 'partno','partno_old','wheeltype','rf_lc','boltpattern1','offset1','offset2','boltpattern1','wheeltype');
  
@@ -482,7 +482,7 @@ class SiteAPIController extends Controller
             }
 
             Log::info('Process Initiate');
-            $process = new Process("python3 " . public_path() . "/js/detect-wheel.py " . $detectimage . " " . public_path() . " " . @$car_images->carid);
+            $process = new Process("python3 " . public_path() . "/js/detect-wheel.py " . $detectimage . " " . public_path() . " " . @$car_images->car_id);
 
             $process->run();
             Log::info('Process Run');

@@ -570,9 +570,9 @@ function WheelMapping(key = '') {
         b = boxes[0];
     }
 
-    var front = $('#wheel-front');
-        front.css('left',f[0]-18+'px');
-        front.css('top',f[1]-1+'px');
+    var front = $('#visualiser-wheel-front');
+    front.css('left',f[0]-18+'px');
+    front.css('top',f[1]-1+'px');
 
     if (widthAdjusted) {
         var extraWidth = 0;
@@ -584,7 +584,7 @@ function WheelMapping(key = '') {
     }
 
 
-    var back = $('#wheel-back');
+    var back = $('#visualiser-wheel-back');
     back.css('left', b[0] - 11.5 + 'px');
     back.css('top', b[1] + 8.5  + 'px');
 }
