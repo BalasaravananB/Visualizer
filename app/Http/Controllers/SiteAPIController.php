@@ -345,35 +345,35 @@ class SiteAPIController extends Controller
  
 
             // if zipcode is available....
-            if($zipcode != null){
-                $zipcodes = Zipcode::getZipcodesByRadius($zipcode,'150'); 
-                $products = $products->with([
-                                    'DropshipperInventories'=>function ($query) use($zipcodes){ 
-                                                            $query->where('qty','>=',4); 
-                                                            $query->Where(function ($query1) use($zipcodes) { 
-                                                                foreach ($zipcodes as $key => $zipcode) {
-                                                                    $query1->orwhere('zip', 'like',  '%' . $zipcode.'%');
-                                                                }     
-                                                            });  
-                                                            $query->orderBy('qty','DESC'); 
-                                    }
-                                ])
+            // if($zipcode != null){
+            //     $zipcodes = Zipcode::getZipcodesByRadius($zipcode,'150'); 
+            //     $products = $products->with([
+            //                         'DropshipperInventories'=>function ($query) use($zipcodes){ 
+            //                                                 $query->where('qty','>=',4); 
+            //                                                 $query->Where(function ($query1) use($zipcodes) { 
+            //                                                     foreach ($zipcodes as $key => $zipcode) {
+            //                                                         $query1->orwhere('zip', 'like',  '%' . $zipcode.'%');
+            //                                                     }     
+            //                                                 });  
+            //                                                 $query->orderBy('qty','DESC'); 
+            //                         }
+            //                     ])
    
-                ->orderBy('price', 'ASC'); 
+            //     ->orderBy('price', 'ASC'); 
  
-            }else{
+            // }else{
 
 
-                $products = $products->with([
-                                     'DropshipperInventories'=>function ($query){ 
-                                                            $query->where('qty','>=',4); 
-                                                            $query->orderBy('qty','DESC'); 
-                                    }
-                                ])
-                ->orderBy('price', 'ASC');
-            }                       
+            //     $products = $products->with([
+            //                          'DropshipperInventories'=>function ($query){ 
+            //                                                 $query->where('qty','>=',4); 
+            //                                                 $query->orderBy('qty','DESC'); 
+            //                         }
+            //                     ])
+            //     ->orderBy('price', 'ASC');
+            // }                       
          
-            $products = $products->get()->unique('prodtitle');  
+            $products = $products->orderBy('price', 'ASC')->get()->unique('prodtitle');  
  
             $products = MakeCustomPaginator($products, $request, 9); 
             
@@ -413,8 +413,12 @@ class SiteAPIController extends Controller
 
         
         $validator = Validator::make($request->all() , [
-         'wheelpartno' => 'required|max:255',
-         'vehicleid' => 'required|max:255'
+            'make'=>'required',
+            'model'=>'required',
+            'year'=>'required',
+            'submodel'=>'required',
+            'wheelpartno' => 'required|max:255',
+            // 'vehicleid' => 'required|max:255'
         ]);
 
         if ($validator->fails())
@@ -425,7 +429,9 @@ class SiteAPIController extends Controller
         try
         {
 
-            $vehicle = Vehicle::where('vehicle_id',$request->vehicleid)->first();
+            // $vehicle = Vehicle::where('vehicle_id',$request->vehicleid)->first();
+
+            $vehicle = $this->findVehicleData($request);
             $carimage = null;
             $car_images = null;
             $detectimage = null;
@@ -505,8 +511,16 @@ class SiteAPIController extends Controller
 
             }
 
-            	Log::info('Response Binded');
-            $data = ['baseurl' => asset('/') , 'vehicle' => $vehicle->year_make_model_submodel, 'carimage' => $carimage, 'frontimage' => asset($frontback) , 'backimage' => asset($frontback) , 'position' => $position];
+            Log::info('Response Binded');
+            
+            $data = [
+                'baseurl' => asset('/') , 
+                'vehicle' => $vehicle->year_make_model_submodel, 
+                'carimage' => $carimage, 
+                'frontimage' => asset($frontback) , 
+                'backimage' => asset($frontback) , 
+                'position' => $position
+            ];
             return response()->json(['status' => true, 'data' => $data ]);
         }
         catch(Exception $e)

@@ -144,7 +144,7 @@ $('.SearchByVehicleGo').click(function(){
 
                 vehicle = result['data']['vehicle'];
                 vehicleid = result['data']['vehicle']['vehicle_id'];
-                    
+
                 if(result['status']==true &&  result['data']['offroad'] != ''){
                     offroadid = result['data']['offroad'];
                     loadOffroadView();
@@ -497,6 +497,10 @@ function getWheelPosition(partno = '') {
 
  
     var data = { 
+        make:qryData['make'],
+        model:qryData['model'],
+        year:qryData['year'],
+        submodel:qryData['submodel'],
         vehicleid:qryData['vehicleid'],
         wheelpartno: partno,
         accesstoken: accesstoken,
