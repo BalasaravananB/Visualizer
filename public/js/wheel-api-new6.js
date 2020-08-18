@@ -550,9 +550,9 @@ function getWheelByVehicle(partno = '') {
 }
 
 function WheelMapping(key = '') {
-    // console.log(allData);
-    boxes = allData['position'];
-
+    // console.log(allData); 
+    boxes = $.parseJSON(allData['position'])
+ 
     $('#vehicle-image').attr('src', allData['carimage']);
     $('#visualiser-wheel-front').attr('src', allData['frontimage']);
     $('#visualiser-wheel-back').attr('src', allData['frontimage']);
@@ -569,11 +569,10 @@ function WheelMapping(key = '') {
         f = boxes[1];
 
         b = boxes[0];
-    }
-
+    } 
     var front = $('#visualiser-wheel-front');
-    front.css('left', f[0] - 18 + 'px');
-    front.css('top', f[1] - 1 + 'px');
+        front.css('left',f[0]-18+'px');
+        front.css('top',f[1]-1-30+'px');
 
     if (widthAdjusted) {
         var extraWidth = 0;
@@ -586,8 +585,8 @@ function WheelMapping(key = '') {
 
 
     var back = $('#visualiser-wheel-back');
-    back.css('left', b[0] - 11.5 + 'px');
-    back.css('top', b[1] + 8.5 + 'px');
+        back.css('left',b[0]-11.5+'px');
+        back.css('top',b[1]+8.5-30+'px');
 }
 
 $('body').on('click', '.pagination a', function(e) {

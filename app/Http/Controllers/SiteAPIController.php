@@ -597,7 +597,7 @@ class SiteAPIController extends Controller
             {
 
             	Log::info('Run Successful');
-                $position = json_encode($process->getOutput());
+                $position = $process->getOutput();
             }
             else
             {
