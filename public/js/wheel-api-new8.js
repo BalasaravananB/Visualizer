@@ -522,6 +522,7 @@ function getWheelByVehicle(partno = '') {
     $.ajax({
         url: baseurl + "/api/WheelByVehicle",
         data: data,
+        dataType: "json",
         type: "POST",
         success: function(result) {
 
@@ -551,7 +552,7 @@ function getWheelByVehicle(partno = '') {
 
 function WheelMapping(key = '') {
     // console.log(allData); 
-    boxes = JSON.parse(allData['position'])
+    boxes = JSON.parse(""+allData['position'])
  
     $('#vehicle-image').attr('src', allData['carimage']);
     $('#visualiser-wheel-front').attr('src', allData['frontimage']);
