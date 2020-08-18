@@ -521,7 +521,8 @@ function getWheelByVehicle(partno = '') {
     $loading.show();
     $.ajax({
         url: baseurl + "/api/WheelByVehicle",
-        data: data,
+        data: JSON.stringify(data),
+        contentType: "application/json; charset=utf-8",
         dataType: "json",
         type: "POST",
         success: function(result) {
