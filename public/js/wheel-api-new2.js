@@ -375,11 +375,22 @@ function getUrlVars()
     for(var i = 0; i < hashes.length; i++)
     {
         hash = hashes[i].split('=');
-        vars.push(hash[0]);
-        vars[hash[0]] = hash[1];
+        vars.push(decodeURIComponent(hash[0]));
+        vars[hash[0]] = decodeURIComponent(hash[1]);
     }
     return vars;
 }
+
+// function getJsonFromUrl(url) {
+//   if(!url) url = location.search;
+//   var query = url.substr(1);
+//   var result = {};
+//   query.split("&").forEach(function(part) {
+//     var item = part.split("=");
+//     result[item[0]] = decodeURIComponent(item[1]);
+//   });
+//   return result;
+// }
 
 
 //  Driver / Body change your car 
@@ -506,6 +517,7 @@ function getWheelPosition(partno = '') {
         accesstoken: accesstoken,
     };
 
+    console.log('Object Detection',data);
  
     $.ajax({
         url: baseurl + "/api/WheelByVehicle",
