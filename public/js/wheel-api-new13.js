@@ -535,7 +535,7 @@ function getWheelByVehicle(partno = '') {
                 $loading.fadeOut("slow");
 
                 $("#VisualiserModal").modal("show");
-                WheelMapping('0')
+                APIWheelMapping('0')
             }
 
             $loading.fadeOut("slow");
@@ -551,7 +551,7 @@ function getWheelByVehicle(partno = '') {
     });
 }
 
-function WheelMapping(key = '') {
+function APIWheelMapping(key = '') {
     console.log(typeof allData['position']); 
     boxes = allData['position']; 
  
