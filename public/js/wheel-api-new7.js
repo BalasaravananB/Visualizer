@@ -551,7 +551,7 @@ function getWheelByVehicle(partno = '') {
 
 function WheelMapping(key = '') {
     // console.log(allData); 
-    boxes = $.parseJSON(allData['position'])
+    boxes = JSON.parse(allData['position'])
  
     $('#vehicle-image').attr('src', allData['carimage']);
     $('#visualiser-wheel-front').attr('src', allData['frontimage']);
@@ -570,6 +570,8 @@ function WheelMapping(key = '') {
 
         b = boxes[0];
     } 
+
+    console.log(f,b)
     var front = $('#visualiser-wheel-front');
         front.css('left',f[0]-18+'px');
         front.css('top',f[1]-1-30+'px');
