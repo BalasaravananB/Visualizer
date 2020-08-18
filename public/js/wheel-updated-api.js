@@ -228,6 +228,8 @@ $(document).on('click','.select-offroad',function(){
         var data = {
             offroadid:offroadid
         };
+
+        console.log(data);
         $.ajax({
             url: baseurl + "/api/getLiftSizes",
             data: data,
@@ -237,6 +239,7 @@ $(document).on('click','.select-offroad',function(){
                     alert(result['message']);
                 }else{
                     if(result['status']==true ){
+                        console.log(result)
                         loadOffroadSizeView(result['data']);
                     }else{
                         flag = 'searchByVehicle';
@@ -447,38 +450,40 @@ function getVisualiserModal() {
 
     var modalStr = `
         <!-- Visualiser Model Start -->
-        <div class="modal fade" id="VisualiserModal" tabindex="-1" role="dialog" aria-labelledby="VisualiserLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                        <h4 class="modal-title" id="VisualiserLabel"></h4>
+<div class="modal fade" id="VisualiserModal" role="dialog">
+    <div class="modal-dialog new_visualiser">
+        <div class="modal-content visualiser_content">
+            <div class="modal-header visualiser_header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="VisualiserLabel">Modal Header</h4>
+            </div>
+            <div class="modal-body visualiser_body">
+                <div class="row main-visualiser-body">
+                    <div class="col-sm-12 model-visualiser" id="modal_visualiser">
+                        <img id="vehicle-image" class="vehicle_image visualiser_image_responsive" src="new_car.png">
                     </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-sm-12 model-car modal_canvas" id="modal_canvas_0" >
-                                <img id="vehicle-image" class="vehicle-image" src="" data-carid="9818" data-imagename="storage/cars/9612_cc2400_032_019.png" style="width: 100%;">
-                            </div>
-                            <div class="car-wheel">
-                                <div class="front">
-                                    <img class="frontimg" src="" id="wheel-front">
-                                </div>
-                                <div class="back">
-                                    <img class="backimg"  src="" id="wheel-back">
-                                </div>
-                            </div>
+                    <div class="vehicle-wheel">
+                        <div class="front_wheel">
+                            <img class="front_wheel" src="front_wheel.png" id="visualiser-wheel-front">
                         </div>
-                        <div class="row model-car-body"> 
+                        <div class="back_wheel">
+                            <img class="back_wheel" src="front_wheel.png" id="visualiser-wheel-back">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                
                             <div class="col-sm-4">
                                 <h1 class="model-car">Wheel Diameter</h1>
                                 <button class="model-button diameter-up" data-id="0">Zoom In</button>
                                 <button class="model-button diameter-down" data-id="0">Zoom Out</button>
                             </div> 
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
+    </div>
+</div>
+
         <!-- Visualiser Model End -->
           `;
 
@@ -487,8 +492,7 @@ function getVisualiserModal() {
 
 function getWheelPosition(partno = '') {
 
-
-    console.log(partno);
+ 
     var data = { 
         vehicleid:qryData['vehicleid'],
         wheelpartno: partno,
@@ -530,8 +534,8 @@ function WheelMapping(key = '') {
     boxes = allData['position'];
 
     $('#vehicle-image').attr('src', allData['carimage']);
-    $('#wheel-front').attr('src', allData['frontimage']);
-    $('#wheel-back').attr('src', allData['frontimage']);
+    $('#visualiser-wheel-front').attr('src', allData['frontimage']);
+    $('#visualiser-wheel-back').attr('src', allData['frontimage']);
     $('#VisualiserLabel').html(allData['vehicle']);
 
     if (boxes[0][0] < 400) {

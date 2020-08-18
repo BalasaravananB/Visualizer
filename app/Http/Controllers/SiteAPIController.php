@@ -117,7 +117,7 @@ class SiteAPIController extends Controller
          
         $liftsizes = Offroad::where('offroadid',@$request->offroadid)->whereNotIn('plussizetype',['Levelkit'])->select('plussizetype')->distinct('plussizetype')->pluck('plussizetype'); 
 
-        $newLiftSizes = array();
+        $newLiftSizes = [];
         
         foreach ($liftsizes as $key => $size) {
             $newSize = str_replace('lift', '" Lift', $size);
