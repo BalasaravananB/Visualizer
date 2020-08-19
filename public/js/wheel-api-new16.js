@@ -1,3 +1,5 @@
+
+$(".se-pre-con").fadeOut('slow');
 var baseurl = "http://web9.vtdns.net"; 
 // var baseurl = "http://localhost:8001";
 var boxes = null;
@@ -19,7 +21,7 @@ var offroadtype = '';
 var liftsize = '';
 var qryData = getUrlVars();
 
-var $loading = $('.se-pre-con');
+var $loading = $('.waiting-loader');
 
 $(document).ready(function() {
     if (qryData['pagename'] == 'list') {
@@ -463,7 +465,7 @@ function listProducts(products) {
     console.log('listProducts', products);
     $('#Visualiser-Products-Section').html(products['htmllist']);
 
-    $(".se-pre-con").fadeOut("slow");
+    // $(".waiting-loader").fadeOut("slow");
 }
 
 
@@ -564,7 +566,7 @@ function getWheelByVehicle(key = '0', isShow) {
     };
 
     console.log('Object Detection', data);
-    $loading.show();
+    $(".waiting-loader").show();
     $.ajax({
         url: baseurl + "/api/WheelByVehicle",
         data: JSON.stringify(data),
