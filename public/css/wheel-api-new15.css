@@ -64,3 +64,22 @@
 #modal_visualiser {
     min-height: 426px !important;
 }
+.visualiser-model-car {
+    font-size: 12px !important;
+    font-family: oswald !important;
+}
+
+.visualiser-list-color li {
+    list-style-type: none;
+    display: inline-block;
+}
+.visualiser-color-radius {
+    height: 25px;
+    width: 25px !important;
+    border: 0.5px dotted black;
+    border-radius: 50% !important;
+    cursor: pointer;
+}
+.visualiser-color-selected {
+    border-radius: 0% !important;
+}

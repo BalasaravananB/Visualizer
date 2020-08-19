@@ -223,9 +223,19 @@
                                             <!-- <div class="price">
                                                 <span class="price-new">Starting at : {{roundCurrency(@$product->price)}}</span>
                                             </div> -->
- 
+
+                                        @if(@$product->wheel)
+                                            @if(file_exists(front_back_path(@$product->wheel['image'])))
+                                            <input type="hidden" id="frontback-image-{{$key}}" value="{{front_back_path(@$product->wheel['image'])}}" data-partno="{{$product->partno}}">
+                                            @endif
+                                        @else
+
+                                            @if(file_exists(front_back_path(@$product->prodimage)))
+                                            <input type="hidden" id="frontback-image-{{$key}}" value="{{front_back_path(@$product->prodimage)}}" data-partno="{{$product->partno}}">
+                                            @endif
+                                        @endif
                                         <button class="btn btn-primary {{
-                                            (!file_exists(front_back_path(@$product->wheel['image'])) && !file_exists(front_back_path(@$product->prodimage)) )?'disabled':''}}" {{(!file_exists(front_back_path(@$product->wheel['image'])) && !file_exists(front_back_path(@$product->prodimage)) )?' ':'data-toggle=modal'}} data-target="#myModal{{$key}}" onclick="getWheelByVehicle('{{$product->partno}}')" >See On Your Car</button> 
+                                            (!file_exists(front_back_path(@$product->wheel['image'])) && !file_exists(front_back_path(@$product->prodimage)) )?'disabled':''}}" {{(!file_exists(front_back_path(@$product->wheel['image'])) && !file_exists(front_back_path(@$product->prodimage)) )?' ':'data-toggle=modal'}} data-target="#myModal{{$key}}" onclick="APIWheelMapping('{{$key}}','show')" >See On Your Car</button> 
                                         </div>
                                         <div class="button-group">
                                             <a href="{{url('/wheelproductview',$product->id)}}{{@$flag?'/'.$flag:''}}">

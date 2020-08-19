@@ -197,6 +197,8 @@ class SiteAPIController extends Controller
             // $car_images='';
             $offroadtype=null;
             $liftsize=null;
+            $vehicleimage = null;
+            $vehiclecolors =null;
 
             // if(@$request->wheeltype){
             //     $wheeltype = base64_decode($request->wheeltype);
@@ -254,15 +256,13 @@ class SiteAPIController extends Controller
 
 
 
-                // // Wheel Visualiser Flow for Shop by Vehicle
-                // if(@$vehicle->vif != null){
-                //     $car_images = CarImage::select('car_id','image','color_code')->wherecar_id(@$vehicle->vif)->where('image', 'LIKE', '%.png%')
-                //     ->with(['CarViflist' => function($query) {
-                //         $query->select('vif', 'yr','make','model','body','drs','whls');
+                // Wheel Visualiser Flow for Shop by Vehicle
+                if(@$vehicle->vif != null){
+                    $vehicleimage = CarImage::select('car_id','image','color_code')->wherecar_id(@$vehicle->vif)->where('image', 'LIKE', '%.png%')
+                    ->with(['CarColor'])->first();
+                    $vehiclecolors = CarImage::wherecar_id($vehicle->vif)->where('image', 'LIKE', '%.png%')->pluck('image','color_code');
+                }
 
-                //     },'CarColor'])->first();
-                // }
- 
                 $chassis_models = ChassisModel::where('model_id', @$vehicle->dr_model_id)->first();
  
 
@@ -483,7 +483,9 @@ class SiteAPIController extends Controller
                 'offroadtype'=>$offroadtype,
                 'liftsize'=>$liftsize,
                 'flag'=>$request->flag,
-                'htmllist'=>$listHtml
+                'htmllist'=>$listHtml,
+                'vehicleimage'=>$vehicleimage,
+                'vehiclecolors'=>$vehiclecolors
 
             ]]);
  
@@ -573,7 +575,7 @@ class SiteAPIController extends Controller
                 else
                 {
 
-                    return response()->json(['status' => false, 'message' => 'Wheel Product Not Found!']);
+                    // return response()->json(['status' => false, 'message' => 'Wheel Product Not Found!']);
                 }
             }
 

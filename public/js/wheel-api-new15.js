@@ -1,6 +1,6 @@
 var baseurl = "http://web9.vtdns.net"; 
 // var baseurl = "http://localhost:8001";
-var boxes;
+var boxes = null;
 var allData;
 var widthAdjusted = true;
 
@@ -24,7 +24,7 @@ var $loading = $('.se-pre-con');
 $(document).ready(function() {
     if (qryData['pagename'] == 'list') {
         getWheelsList();
-        getVisualiserModal();
+        // getVisualiserModal();
     }
     vehicleFilters();
 });
@@ -64,7 +64,7 @@ function vehicleFilters(changeBy = '') {
         url: baseurl + "/api/getVehicles",
         data: data,
         type: "POST",
-        success: function(result) { 
+        success: function(result) {
             if (result['status'] == false) {
 
                 showAlert(result['message']);
@@ -78,7 +78,7 @@ function vehicleFilters(changeBy = '') {
                 $('.year').empty().append('<option disabled selected>Select Year</option>');
             }
 
-            if (changeBy == '') { 
+            if (changeBy == '') {
                 result.data['make'].map(function(value, key) {
                     isSelected = (value.make == make) ? 'selected' : '';
                     $('.make').append('<option value="' + value.make + '" ' + isSelected + '>' + value.make + '</option>');
@@ -388,12 +388,14 @@ function getUrlVars() {
     }
     return vars;
 }
- 
- 
-function getWheelsList(url = '') {
 
-    if (url == '') {
+
+function getWheelsList(paginateurl = '') {
+
+    if (paginateurl == '') {
         url = baseurl + "/api/getWheels"
+    } else {
+        url = paginateurl;
     }
 
     var data = "";
@@ -432,11 +434,16 @@ function getWheelsList(url = '') {
                 if (result['status'] == true) {
 
                     products = result['data']['products'];
-                    if (listType == 'html') {
-                        listProducts(result['data']);
-                    }
 
-                    $loading.fadeOut("slow");
+                    listProducts(result['data']);
+                    getVisualiserModal(result['data']['vehicleimage'], result['data']['vehiclecolors'])
+                    // console.log('paginateurl', paginateurl)
+                    if (paginateurl == '') {
+
+                        getWheelByVehicle();
+                    } else {
+                        APIWheelMapping('0');
+                    }
 
                 } else {
 
@@ -460,7 +467,7 @@ function listProducts(products) {
 }
 
 
-function getVisualiserModal() {
+function getVisualiserModal(vehicleData = '', vehicleColors = '') {
 
     var modalStr = `
         <!-- Visualiser Model Start -->
@@ -474,39 +481,78 @@ function getVisualiserModal() {
             <div class="modal-body visualiser_body">
                 <div class="row main-visualiser-body">
                     <div class="col-sm-12 model-visualiser" id="modal_visualiser">
-                        <img id="vehicle-image" class="vehicle_image visualiser_image_responsive" src="new_car.png">
+                        <img id="vehicle-image" class="vehicle_image visualiser_image_responsive" src="` + baseurl + vehicleData['image'] + `">
                     </div>
                     <div class="vehicle-wheel">
                         <div class="front_wheel">
-                            <img class="front_wheel" src="front_wheel.png" id="visualiser-wheel-front">
+                            <img class="front_wheel" src="" id="visualiser-wheel-front">
                         </div>
                         <div class="back_wheel">
-                            <img class="back_wheel" src="front_wheel.png" id="visualiser-wheel-back">
+                            <img class="back_wheel" src="" id="visualiser-wheel-back">
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                
-                            <div class="col-sm-4">
-                                <h1 class="model-car">Wheel Diameter</h1>
-                                <button class="model-button diameter-up" data-id="0">Zoom In</button>
-                                <button class="model-button diameter-down" data-id="0">Zoom Out</button>
-                            </div> 
-            </div>
-        </div>
-    </div>
-</div>
+            <div class="modal-footer" style="text-align: left;">
 
-        <!-- Visualiser Model End -->
+                <div class="col-sm-4">
+                    
+                                            <h1 class="visualiser-model-car">Vechicle Color</h1>
+                                            <ul class="visualiser-list-color"> `;
+
+
+    $.each(vehicleData['car_color'], function(ind, color) {
+        modalStr += `
+
+            <li class="visualiser-color-radius visualiser-car-color {{(` + color.code + ` ==` + vehicleData['color_code'] + ` )?'visualiser-color-selected':''}}" style="background:#` + color.rgb1 + `;" title="` + color.name + `" data-image="` + vehicleColors[color.code] + `"></li>
+        `;
+
+    });
+
+
+
+
+    modalStr += `            </ul>
+                                </div>
+                                <div class="col-sm-4">
+                                    <h1 class="model-car">Wheel Diameter</h1>
+                                    <button class="model-button visualiser-diameter-up" data-id="0">Zoom In</button>
+                                    <button class="model-button visualiser-diameter-down" data-id="0">Zoom Out</button>
+                                </div> 
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                        <!-- Visualiser Model End -->
           `;
 
     $('#Visualiser-Section').html(modalStr);
 }
 
-function getWheelByVehicle(partno = '') {
 
 
+// change the cars by selected color
+$('body').on('click', '.visualiser-car-color', function(e) {
+    e.preventDefault();
+    var imagename = $(this).attr('data-image');
+    $('.visualiser-color-selected').removeClass('visualiser-color-selected');
+    $(this).addClass('visualiser-color-selected');
+    $('#vehicle-image').attr('src', baseurl + "/" + imagename);
+
+});
+
+
+
+function getWheelByVehicle(key = '0', isShow) {
+    console.log('getWheelByVehicle')
+    console.log('boxes', boxes)
+
+    partno = $('#frontback-image-' + key).data('partno');
+
+    if (partno == undefined) {
+        partno = '0000';
+    }
     var data = {
         make: qryData['make'],
         model: qryData['model'],
@@ -527,20 +573,23 @@ function getWheelByVehicle(partno = '') {
         type: "POST",
         success: function(result) {
 
-
+            console.log('Response Binded', result)
             if (result['status'] == true) {
 
                 allData = result['data'];
 
-                $loading.fadeOut("slow");
 
-                $("#VisualiserModal").modal("show");
-                APIWheelMapping('0')
+                console.log(typeof allData['position']);
+                boxes = JSON.parse(allData['position']);
+                console.log(typeof boxes, boxes);
+
+                // $("#VisualiserModal").modal("show");
+
+                APIWheelMapping(key, isShow)
             }
+ 
 
-            $loading.fadeOut("slow");
-
-            if(result['status'] == false && result['message']){ 
+            if (result['status'] == false && result['message']) {
                 showAlert(result['message']);
             }
         },
@@ -549,49 +598,64 @@ function getWheelByVehicle(partno = '') {
             $loading.fadeOut("slow");
         }
     });
+
 }
 
-function APIWheelMapping(key = '') {
-    console.log(typeof allData['position']); 
-    boxes = JSON.parse(allData['position']); 
-    console.log(typeof boxes,boxes); 
- 
-    $('#vehicle-image').attr('src', allData['carimage']);
-    $('#visualiser-wheel-front').attr('src', allData['frontimage']);
-    $('#visualiser-wheel-back').attr('src', allData['frontimage']);
-    $('#VisualiserLabel').html(allData['vehicle']);
-
-    if (boxes[0][0] < 400) {
-
-        f = boxes[0];
-
-        b = boxes[1];
-
+function APIWheelMapping(key, isShow = null) {
+    if (boxes == 'undefined') {
+        getWheelByVehicle(key, isShow);
     } else {
+        if (isShow == null) {
 
-        f = boxes[1];
+            $('#vehicle-image').attr('src', allData['carimage']);
+            $('#visualiser-wheel-front').attr('src', allData['frontimage']);
+            $('#visualiser-wheel-back').attr('src', allData['frontimage']);
+            $('#VisualiserLabel').html(allData['vehicle']);
 
-        b = boxes[0];
-    } 
+            if (boxes[0][0] < 400) {
 
-    console.log(f,b)
-    var front = $('#visualiser-wheel-front');
-        front.css('left',f[0]-18+'px');
-        front.css('top',f[1]-1-30+'px');
+                f = boxes[0];
 
-    if (widthAdjusted) {
-        var extraWidth = 0;
-        if (front.width() - f[2] > 4) {
-            extraWidth = (front.width() - f[2]) / 2;
+                b = boxes[1];
+
+            } else {
+
+                f = boxes[1];
+
+                b = boxes[0];
+            }
+
+            console.log(f, b)
+            var front = $('#visualiser-wheel-front');
+            front.css('left', f[0] - 18 + 'px');
+            front.css('top', f[1] - 1 - 30 + 'px');
+
+            if (widthAdjusted) {
+                var extraWidth = 0;
+                if (front.width() - f[2] > 4) {
+                    extraWidth = (front.width() - f[2]) / 2;
+                }
+                front.width(front.width() + extraWidth + 'px');
+                widthAdjusted = false;
+            }
+
+
+            var back = $('#visualiser-wheel-back');
+            back.css('left', b[0] - 11.5 + 'px');
+            back.css('top', b[1] + 8.5 - 30 + 'px');
+
+                    $loading.fadeOut("slow");
+        } else {
+            $("#VisualiserModal").modal("show");
+            $('#vehicle-image').attr('src', allData['carimage']);
+            $('#visualiser-wheel-front').attr('src', $('#frontback-image-' + key).val());
+            $('#visualiser-wheel-back').attr('src', $('#frontback-image-' + key).val());
+
+                    $loading.fadeOut("slow");
         }
-        front.width(front.width() + extraWidth + 'px');
-        widthAdjusted = false;
     }
+ 
 
-
-    var back = $('#visualiser-wheel-back');
-        back.css('left',b[0]-11.5+'px');
-        back.css('top',b[1]+8.5-30+'px');
 }
 
 $('body').on('click', '.pagination a', function(e) {
@@ -604,7 +668,99 @@ $('body').on('click', '.pagination a', function(e) {
 $('body').on('click', '.wheeldiameter,.wheelwidth', function(e) {
     e.preventDefault();
     $loading.show();
-    var url = baseurl+"/api/getWheels?"+$(this).attr('class')+"="+$(this).val();
+    var url = baseurl + "/api/getWheels?" + $(this).attr('class') + "=" + $(this).val();
     getWheelsList(url);
     // window.history.pushState("", "", url);
+});
+
+
+// Zoom In Zoom Out
+
+// Wheel Diameter Zoom In and Zoom Out  
+
+var diameterStepCount = 0;
+var diameterStepLimit = 8;
+var currentKey = 0;
+
+
+$(document).on('click', '.visualiser-diameter-up', function() {
+    var key = $(this).attr('data-id');
+    key = '';
+    if (key != currentKey) {
+        diameterStepCount = 0;
+        diameterStepLimit = 8;
+        currentKey = key;
+    }
+    if (diameterStepCount < diameterStepLimit) {
+        var front = document.getElementById("visualiser-wheel-front");
+        var frontWidth = front.clientWidth;
+        front.style.width = (frontWidth + 20) + "px";
+
+        frontTop = parseInt($(front).css("top"), 10);
+        frontLeft = parseInt($(front).css("left"), 10);
+        frontTop = frontTop - 10;
+        frontLeft = frontLeft - 10;
+        $(front).css({
+            top: frontTop,
+            left: frontLeft
+        });
+
+        var back = document.getElementById("visualiser-wheel-back");
+        var backWidth = back.clientWidth;
+        back.style.width = (backWidth + 20) + "px";
+
+        backTop = parseInt($(back).css("top"), 10);
+        backLeft = parseInt($(back).css("left"), 10);
+        backTop = backTop - 10;
+        backLeft = backLeft - 10;
+        $(back).css({
+            top: backTop,
+            left: backLeft
+        });
+
+        diameterStepCount = diameterStepCount + 1;
+    }
+    console.log(diameterStepCount, front.clientWidth);
+
+});
+$(document).on('click', '.visualiser-diameter-up', function() {
+    var key = $(this).attr('data-id');
+    if (key != currentKey) {
+        diameterStepCount = 0;
+        diameterStepLimit = 8;
+        currentKey = key;
+    }
+    if (diameterStepCount > 0) {
+
+        var front = document.getElementById("visualiser-wheel-front");
+        var frontWidth = front.clientWidth;
+        front.style.width = (frontWidth - 20) + "px";
+
+
+        frontTop = parseInt($(front).css("top"), 10);
+        frontLeft = parseInt($(front).css("left"), 10);
+        frontTop = frontTop + 10;
+        frontLeft = frontLeft + 10;
+        $(front).css({
+            top: frontTop,
+            left: frontLeft
+        });
+
+        var back = document.getElementById("visualiser-wheel-back");
+        var currWidth = back.clientWidth;
+        back.style.width = (currWidth - 20) + "px";
+
+
+        backTop = parseInt($(back).css("top"), 10);
+        backLeft = parseInt($(back).css("left"), 10);
+        backTop = backTop + 10;
+        backLeft = backLeft + 10;
+        $(back).css({
+            top: backTop,
+            left: backLeft
+        });
+
+        diameterStepCount = diameterStepCount - 1;
+    }
+    // console.log(diameterStepCount,front.clientWidth);
 });
