@@ -1,7 +1,8 @@
 
-$(".se-pre-con").fadeOut('slow');
 var baseurl = "http://web9.vtdns.net"; 
 // var baseurl = "http://localhost:8001";
+
+$(".se-pre-con").fadeOut('slow');
 var boxes = null;
 var allData;
 var widthAdjusted = true;
@@ -686,7 +687,7 @@ var diameterStepLimit = 8;
 var currentKey = 0;
 
 
-$(document).on('click', '.visualiser-diameter-up', function() {
+$('body').on('click', '.visualiser-diameter-up', function(e) { 
     var key = $(this).attr('data-id');
     key = '';
     if (key != currentKey) {
@@ -726,8 +727,10 @@ $(document).on('click', '.visualiser-diameter-up', function() {
     console.log(diameterStepCount, front.clientWidth);
 
 });
-$(document).on('click', '.visualiser-diameter-up', function() {
+
+$('body').on('click', '.visualiser-diameter-down', function(e) {  
     var key = $(this).attr('data-id');
+    console.log(key)
     if (key != currentKey) {
         diameterStepCount = 0;
         diameterStepLimit = 8;
