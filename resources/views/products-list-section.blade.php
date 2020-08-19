@@ -1,4 +1,4 @@
-
+    <div class="container">
         <div class="row main-pro">
             <div class="col-sm-3 main-pro-inner-category">
                 <div class="header-bottom col-sm-12">
@@ -47,7 +47,7 @@
                                                 </ul>
                                             </div>
                                         </div>
-                                    </div>key words
+                                    </div> 
                                     <div class="panel panel-default">
                                         <div class="panel-heading" role="tab" id="headingThree">
                                             <h4 class="panel-title">
@@ -282,3 +282,5 @@
 
             </div>
         </div>
+        
+    </div>
