@@ -553,7 +553,8 @@ function getWheelByVehicle(partno = '') {
 
 function APIWheelMapping(key = '') {
     console.log(typeof allData['position']); 
-    boxes = allData['position']; 
+    boxes = JSON.parse(allData['position']); 
+    console.log(typeof boxes,boxes); 
  
     $('#vehicle-image').attr('src', allData['carimage']);
     $('#visualiser-wheel-front').attr('src', allData['frontimage']);

@@ -54,7 +54,7 @@ labels, boxes, scores = predictions
 color = (255, 0, 0) 
   
 # # Line thickness of 2 px 
-thickness = 2
+thickness = 2   
 
 points = [];
 
@@ -71,11 +71,11 @@ for key, value in enumerate(boxes):
                 h = (rect[3]-rect[1])
                 points.append([x,y,w,h,startX,startY,endX,endY])
 #               print(points)
-                cv2.rectangle(img,(value[0],value[1]),(value[2],value[3]), color, thickness)
-                cv2.circle(img, (value[0],value[1]), 1, color, 5)
-                cv2.circle(img, (value[2],value[3]), 1, color, thickness)
+                # cv2.rectangle(img,(value[0],value[1]),(value[2],value[3]), color, thickness)
+                # cv2.circle(img, (value[0],value[1]), 1, color, 5)
+                # cv2.circle(img, (value[2],value[3]), 1, color, thickness)
 #
-cv2.imwrite(dummyPath+carid+'_car.png', img)
+# cv2.imwrite(dummyPath+carid+'_car.png', img)
 
 print(points)
 # 
