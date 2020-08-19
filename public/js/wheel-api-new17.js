@@ -29,6 +29,7 @@ $(document).ready(function() {
         // getVisualiserModal();
     }
     vehicleFilters();
+    $loading.fadeOut("slow");
 });
 
 
