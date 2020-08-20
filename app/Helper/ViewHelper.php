@@ -172,6 +172,7 @@ function front_back_path($imgPath){
 		return $imgPath;
 	}
 }
+
 function front_back_filecheck($imgPath){ 
 	$imageArray = explode('/', $imgPath);
 	$filename = str_replace(".jpg","",end($imageArray)); 

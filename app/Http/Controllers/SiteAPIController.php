@@ -473,7 +473,7 @@ class SiteAPIController extends Controller
             $flag = $request->flag;
 
             if(@$request->listType == 'html'){
-                $listHtml = view('products-list-section', compact('products','flag','vehicle','wheelwidth','wheeldiameter','countsByBrand','wheelfinish','brands'))->render();
+                $listHtml = view('products-list-section', compact('products','flag','vehicle','wheelwidth','wheeldiameter','countsByBrand','wheelfinish','brands','offroadtype','liftsize','vehicleimage'))->render();
             }
 
             return response()->json(['status' =>true,'data'=>[
@@ -530,6 +530,7 @@ class SiteAPIController extends Controller
             $detectimage = null;
             $wheel = null;
             $frontback = null;
+            $position = [];
             if ($vehicle == null)
             {
                 return response()->json(['status' => false, 'message' => 'Vehicle Not Found!']);
@@ -579,37 +580,44 @@ class SiteAPIController extends Controller
                 }
             }
 
-            Log::info('Process Initiate');
-            $process = new Process("python3 " . public_path() . "/js/detect-wheel.py " . $detectimage . " " . public_path() . " " . @$car_images->car_id);
 
-            $process->run();
-            Log::info('Process Run');
-            // $process->setIdleTimeout(60);
-            // executes after the command finishes
+            if($carimage != null){
 
-            while ($process->isRunning()) {
+                Log::info('Process Initiate');
+                $process = new Process("python3 " . public_path() . "/js/detect-wheel.py " . $detectimage . " " . public_path() . " " . @$car_images->car_id);
 
-               Log::info('Process Running check');
+                $process->run();
+                Log::info('Process Run');
+                // $process->setIdleTimeout(60);
+                // executes after the command finishes
 
-                // waiting for process to finish
+                while ($process->isRunning()) {
+
+                   Log::info('Process Running check');
+
+                    // waiting for process to finish
+                }
+
+                Log::info('Condition Check');
+                if ($process->isSuccessful())
+                {
+
+                    Log::info('Run Successful');
+                    $position = $process->getOutput();
+                }
+                else
+                {
+
+                    Log::info('Run Fail Part');
+                    $position = [[301.4070587158203, 313.35447692871094, 62.829010009765625, 99.53854370117188, 269.9925537109375, 263.585205078125, 269.9925537109375, 263.585205078125], [526.0646209716797, 293.32891845703125, 42.812530517578125, 79.39599609375, 504.6583557128906, 253.63092041015625, 504.6583557128906, 253.63092041015625]];
+
+                }
+
+                Log::info('Response Binded');
+            }else{
+                Log::info('Car Image Not Found');
             }
 
-            Log::info('Condition Check');
-            if ($process->isSuccessful())
-            {
-
-            	Log::info('Run Successful');
-                $position = $process->getOutput();
-            }
-            else
-            {
-
-            	Log::info('Run Fail Part');
-                $position = [[301.4070587158203, 313.35447692871094, 62.829010009765625, 99.53854370117188, 269.9925537109375, 263.585205078125, 269.9925537109375, 263.585205078125], [526.0646209716797, 293.32891845703125, 42.812530517578125, 79.39599609375, 504.6583557128906, 253.63092041015625, 504.6583557128906, 253.63092041015625]];
-
-            }
-
-            Log::info('Response Binded');
             
             $data = [
                 'baseurl' => asset('/') , 

@@ -1,4 +1,3 @@
-
 var baseurl = "http://web9.vtdns.net"; 
 // var baseurl = "http://localhost:8001";
 
@@ -26,8 +25,7 @@ var $loading = $('.waiting-loader');
 
 $(document).ready(function() {
     if (qryData['pagename'] == 'list') {
-        getWheelsList();
-        // getVisualiserModal();
+        getWheelsList(); 
     }
     vehicleFilters();
     $loading.fadeOut("slow");
@@ -222,7 +220,6 @@ function loadOffroadView() {
     $('#offroadTypeModal').modal('show');
 }
 
-
 $(document).on('click', '.select-offroad', function() {
 
     $("#offroadTypeModal").modal('hide');
@@ -242,7 +239,7 @@ $(document).on('click', '.select-offroad', function() {
             accesstoken: accesstoken
         };
 
-        console.log(data);
+        
 
         $loading.show();
         $.ajax({
@@ -256,7 +253,7 @@ $(document).on('click', '.select-offroad', function() {
 
                     $loading.fadeOut('slow');
                     if (result['status'] == true) {
-                        console.log(result)
+                        
                         loadOffroadSizeView(result['data']);
                     } else {
                         flag = 'searchByVehicle';
@@ -426,14 +423,14 @@ function getWheelsList(paginateurl = '') {
         }
     }
 
-    console.log("Passed Data");
+    
     if (qryData['pagename'] == 'list') {
         $.ajax({
             url: url,
             data: data,
             type: "POST",
             success: function(result) {
-                console.log(result);
+                
 
                 if (result['status'] == true) {
 
@@ -441,7 +438,7 @@ function getWheelsList(paginateurl = '') {
 
                     listProducts(result['data']);
                     getVisualiserModal(result['data']['vehicleimage'], result['data']['vehiclecolors'])
-                    // console.log('paginateurl', paginateurl)
+                    
                     if (paginateurl == '') {
 
                         getWheelByVehicle();
@@ -464,7 +461,7 @@ function getWheelsList(paginateurl = '') {
 
 
 function listProducts(products) {
-    console.log('listProducts', products);
+    
     $('#Visualiser-Products-Section').html(products['htmllist']);
 
     // $(".waiting-loader").fadeOut("slow");
@@ -472,10 +469,19 @@ function listProducts(products) {
 
 
 function getVisualiserModal(vehicleData = '', vehicleColors = '') {
+    var vehicleimage = "#";
+    var vehiclecolors = [];
+    if (vehicleData != null) {
+        vehicleimage = baseurl + "/" + vehicleData['image'];
+    }
+
+    if (vehicleData != null) {
+        vehiclecolors = vehicleData['car_color'];
+    }
 
     var modalStr = `
         <!-- Visualiser Model Start -->
-<div class="modal fade" id="VisualiserModal" role="dialog">
+    <div class="modal fade" id="VisualiserModal" role="dialog">
     <div class="modal-dialog new_visualiser">
         <div class="modal-content visualiser_content">
             <div class="modal-header visualiser_header">
@@ -483,9 +489,9 @@ function getVisualiserModal(vehicleData = '', vehicleColors = '') {
                 <h4 class="modal-title" id="VisualiserLabel">Modal Header</h4>
             </div>
             <div class="modal-body visualiser_body">
-                <div class="row main-visualiser-body">
+                <div class="row main-visualiser-body"> 
                     <div class="col-sm-12 model-visualiser" id="modal_visualiser">
-                        <img id="vehicle-image" class="vehicle_image visualiser_image_responsive" src="` + baseurl + vehicleData['image'] + `">
+                        <img id="vehicle-image" class="vehicle_image visualiser_image_responsive" src="` + vehicleimage + `">
                     </div>
                     <div class="vehicle-wheel">
                         <div class="front_wheel">
@@ -505,11 +511,14 @@ function getVisualiserModal(vehicleData = '', vehicleColors = '') {
                                             <ul class="visualiser-list-color"> `;
 
 
-    $.each(vehicleData['car_color'], function(ind, color) {
-        modalStr += `
+    $.each(vehiclecolors, function(ind, color) {
+        if (vehicleColors[color.code] != undefined) {
 
-            <li class="visualiser-color-radius visualiser-car-color {{(` + color.code + ` ==` + vehicleData['color_code'] + ` )?'visualiser-color-selected':''}}" style="background:#` + color.rgb1 + `;" title="` + color.name + `" data-image="` + vehicleColors[color.code] + `"></li>
-        `;
+            modalStr += `
+
+                <li class="visualiser-color-radius visualiser-car-color " style="background:#` + color.rgb1 + `;" title="` + color.name + `" data-image="` + vehicleColors[color.code] + `"></li>
+            `;
+        }
 
     });
 
@@ -544,13 +553,14 @@ $('body').on('click', '.visualiser-car-color', function(e) {
     $(this).addClass('visualiser-color-selected');
     $('#vehicle-image').attr('src', baseurl + "/" + imagename);
 
+
 });
 
 
 
 function getWheelByVehicle(key = '0', isShow) {
-    console.log('getWheelByVehicle')
-    console.log('boxes', boxes)
+    
+    
 
     partno = $('#frontback-image-' + key).data('partno');
 
@@ -567,7 +577,7 @@ function getWheelByVehicle(key = '0', isShow) {
         accesstoken: accesstoken,
     };
 
-    console.log('Object Detection', data);
+    
     $(".waiting-loader").show();
     $.ajax({
         url: baseurl + "/api/WheelByVehicle",
@@ -577,21 +587,28 @@ function getWheelByVehicle(key = '0', isShow) {
         type: "POST",
         success: function(result) {
 
-            console.log('Response Binded', result)
+            
             if (result['status'] == true) {
 
                 allData = result['data'];
 
 
-                console.log(typeof allData['position']);
-                boxes = JSON.parse(allData['position']);
-                console.log(typeof boxes, boxes);
+                
+
+                if (typeof allData['position'] != 'object') {
+
+                    boxes = JSON.parse(allData['position']);
+                } else {
+                    boxes = allData['position'];
+                }
+
+                
 
                 // $("#VisualiserModal").modal("show");
 
                 APIWheelMapping(key, isShow)
             }
- 
+
 
             if (result['status'] == false && result['message']) {
                 showAlert(result['message']);
@@ -616,49 +633,54 @@ function APIWheelMapping(key, isShow = null) {
             $('#visualiser-wheel-back').attr('src', allData['frontimage']);
             $('#VisualiserLabel').html(allData['vehicle']);
 
-            if (boxes[0][0] < 400) {
+            if (boxes.length > 0) {
 
-                f = boxes[0];
+                if (boxes[0][0] < 400) {
 
-                b = boxes[1];
+                    f = boxes[0];
 
-            } else {
+                    b = boxes[1];
 
-                f = boxes[1];
+                } else {
 
-                b = boxes[0];
-            }
+                    f = boxes[1];
 
-            console.log(f, b)
-            var front = $('#visualiser-wheel-front');
-            front.css('left', f[0] - 18 + 'px');
-            front.css('top', f[1] - 1 - 30 + 'px');
-
-            if (widthAdjusted) {
-                var extraWidth = 0;
-                if (front.width() - f[2] > 4) {
-                    extraWidth = (front.width() - f[2]) / 2;
+                    b = boxes[0];
                 }
-                front.width(front.width() + extraWidth + 'px');
-                widthAdjusted = false;
+
+                
+                var front = $('#visualiser-wheel-front');
+                front.css('left', f[0] - 18 + 'px');
+                front.css('top', f[1] - 1 - 30 + 'px');
+
+                if (widthAdjusted) {
+                    var extraWidth = 0;
+                    if (front.width() - f[2] > 4) {
+                        extraWidth = (front.width() - f[2]) / 2;
+                    }
+                    front.width(front.width() + extraWidth + 'px');
+                    widthAdjusted = false;
+                }
+
+
+                var back = $('#visualiser-wheel-back');
+                back.css('left', b[0] - 11.5 + 'px');
+                back.css('top', b[1] + 8.5 - 30 + 'px');
             }
 
+            $loading.fadeOut("slow");
 
-            var back = $('#visualiser-wheel-back');
-            back.css('left', b[0] - 11.5 + 'px');
-            back.css('top', b[1] + 8.5 - 30 + 'px');
-
-                    $loading.fadeOut("slow");
         } else {
-            $("#VisualiserModal").modal("show");
+            
+            // $("#VisualiserModal").modal("show");
             $('#vehicle-image').attr('src', allData['carimage']);
             $('#visualiser-wheel-front').attr('src', $('#frontback-image-' + key).val());
             $('#visualiser-wheel-back').attr('src', $('#frontback-image-' + key).val());
 
-                    $loading.fadeOut("slow");
+            $loading.fadeOut("slow");
         }
     }
- 
+
 
 }
 
@@ -687,7 +709,7 @@ var diameterStepLimit = 8;
 var currentKey = 0;
 
 
-$('body').on('click', '.visualiser-diameter-up', function(e) { 
+$('body').on('click', '.visualiser-diameter-up', function(e) {
     var key = $(this).attr('data-id');
     key = '';
     if (key != currentKey) {
@@ -724,13 +746,13 @@ $('body').on('click', '.visualiser-diameter-up', function(e) {
 
         diameterStepCount = diameterStepCount + 1;
     }
-    console.log(diameterStepCount, front.clientWidth);
+    
 
 });
 
-$('body').on('click', '.visualiser-diameter-down', function(e) {  
+$('body').on('click', '.visualiser-diameter-down', function(e) {
     var key = $(this).attr('data-id');
-    console.log(key)
+    
     if (key != currentKey) {
         diameterStepCount = 0;
         diameterStepLimit = 8;
@@ -768,5 +790,5 @@ $('body').on('click', '.visualiser-diameter-down', function(e) {
 
         diameterStepCount = diameterStepCount - 1;
     }
-    // console.log(diameterStepCount,front.clientWidth);
+    
 });

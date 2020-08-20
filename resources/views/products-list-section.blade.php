@@ -225,17 +225,28 @@
                                             </div> -->
 
                                         @if(@$product->wheel)
-                                            @if(file_exists(front_back_path(@$product->wheel['image'])))
-                                            <input type="hidden" id="frontback-image-{{$key}}" value="{{front_back_path(@$product->wheel['image'])}}" data-partno="{{$product->partno}}">
+                                            @if(front_back_filecheck(@$product->wheel['image']) && $vehicleimage)
+                                            <input type="hidden" id="frontback-image-{{$key}}" value="{{url('/')}}/{{front_back_path(@$product->wheel['image'])}}" data-partno="{{$product->partno}}">
+                                                   <button class="btn btn-primary" data-toggle="modal" data-target="#VisualiserModal" onclick="APIWheelMapping('{{$key}}','show')" >See On Your Car
+                                        </button> 
+
                                             @endif
                                         @else
 
-                                            @if(file_exists(front_back_path(@$product->prodimage)))
-                                            <input type="hidden" id="frontback-image-{{$key}}" value="{{front_back_path(@$product->prodimage)}}" data-partno="{{$product->partno}}">
+                                            @if(front_back_filecheck(@$product->prodimage) && $vehicleimage)
+                                            <input type="hidden" id="frontback-image-{{$key}}" value="{{url('/')}}/{{front_back_path(@$product->prodimage)}}" data-partno="{{$product->partno}}">
+                                                <button class="btn btn-primary" data-toggle="modal" data-target="#VisualiserModal" onclick="APIWheelMapping('{{$key}}','show')" >See On Your Car
+                                                </button> 
                                             @endif
                                         @endif
-                                        <button class="btn btn-primary {{
-                                            (!file_exists(front_back_path(@$product->wheel['image'])) && !file_exists(front_back_path(@$product->prodimage)) )?'disabled':''}}" {{(!file_exists(front_back_path(@$product->wheel['image'])) && !file_exists(front_back_path(@$product->prodimage)) )?' ':'data-toggle=modal'}} data-target="#myModal{{$key}}" onclick="APIWheelMapping('{{$key}}','show')" >See On Your Car</button> 
+
+
+
+ 
+
+
+
+                                    
                                         </div>
                                         <div class="button-group">
                                             <a href="{{url('/wheelproductview',$product->id)}}{{@$flag?'/'.$flag:''}}">
