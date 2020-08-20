@@ -374,19 +374,26 @@ class SiteAPIController extends Controller
             // }                       
          
             // ----------------------------------------------------------------------------------------------------
+            
+            $visualiserbrand = explode(',', $request->visualiserbrand?:'');
+            $visualiserfinish = explode(',', $request->visualiserfinish?:'');
+            $visualiserdiameter = explode(',', $request->visualiserdiameter?:'');
+            $visualiserwidth = explode(',', $request->visualiserwidth?:'');
+
             // Wheel Width size search in the Sidebar
             $wheelwidth = clone $products;
 
-            if (isset($request->brand) && $request->brand) {
-                $wheelwidth = $wheelwidth->whereIn('prodbrand', $request->brand);
+            
+            if (isset($request->visualiserbrand) && $request->visualiserbrand) {
+                $wheelwidth = $wheelwidth->whereIn('prodbrand', $visualiserbrand);
             }
 
-            if (isset($request->diameter) && $request->diameter) {
-                $wheelwidth = $wheelwidth->whereIn('wheeldiameter', $request->diameter);
+            if (isset($request->visualiserdiameter) && $request->visualiserdiameter) {
+                $wheelwidth = $wheelwidth->whereIn('wheeldiameter', $visualiserdiameter);
             }
             
-            if (isset($request->finish) && $request->finish) {
-                $wheelwidth = $wheelwidth->whereIn('prodfinish', $request->finish);
+            if (isset($request->visualiserfinish) && $request->visualiserfinish) {
+                $wheelwidth = $wheelwidth->whereIn('prodfinish', $visualiserfinish);
             }
 
             $wheelwidth =  $wheelwidth->select('wheelwidth', \DB::raw('count(DISTINCT prodtitle) as total'))
@@ -398,16 +405,16 @@ class SiteAPIController extends Controller
 
             $wheeldiameter = clone $products;
             // dd($wheeldiameter);
-            if (isset($request->brand) && $request->brand) {
-                $wheeldiameter = $wheeldiameter->whereIn('prodbrand', $request->brand);
+            if (isset($request->visualiserbrand) && $request->visualiserbrand) {
+                $wheeldiameter = $wheeldiameter->whereIn('prodbrand', $visualiserbrand);
             }
 
-            if (isset($request->width) && $request->width) {
-                $wheeldiameter = $wheeldiameter->whereIn('wheelwidth', $request->width);
+            if (isset($request->visualiserwidth) && $request->visualiserwidth) {
+                $wheeldiameter = $wheeldiameter->whereIn('wheelwidth', $visualiserwidth);
             }
             
-            if (isset($request->finish) && $request->finish) {
-                $wheeldiameter = $wheeldiameter->whereIn('prodfinish', $request->finish);
+            if (isset($request->visualiserfinish) && $request->visualiserfinish) {
+                $wheeldiameter = $wheeldiameter->whereIn('prodfinish', $visualiserfinish);
             }
 
             $wheeldiameter =  $wheeldiameter->select('wheeldiameter', \DB::raw('count(DISTINCT prodtitle) as total'))
@@ -420,16 +427,16 @@ class SiteAPIController extends Controller
 
             $countsByBrand = clone $products;
             
-            if (isset($request->diameter) && $request->diameter) {
-                $countsByBrand = $countsByBrand->whereIn('wheeldiameter', $request->diameter);
+            if (isset($request->visualiserdiameter) && $request->visualiserdiameter) {
+                $countsByBrand = $countsByBrand->whereIn('wheeldiameter', $visualiserdiameter);
             }
 
-            if (isset($request->width) && $request->width) {
-                $countsByBrand = $countsByBrand->whereIn('wheelwidth', $request->width);
+            if (isset($request->visualiserwidth) && $request->visualiserwidth) {
+                $countsByBrand = $countsByBrand->whereIn('wheelwidth', $visualiserwidth);
             }
 
-            if (isset($request->finish) && $request->finish) {
-                $countsByBrand = $countsByBrand->whereIn('prodfinish', $request->finish);
+            if (isset($request->visualiserfinish) && $request->visualiserfinish) {
+                $countsByBrand = $countsByBrand->whereIn('prodfinish', $visualiserfinish);
             }
             
             $brands =  $countsByBrand->select('prodbrand')
@@ -445,22 +452,46 @@ class SiteAPIController extends Controller
 
             $wheelfinish = clone $products;
 
-            if (isset($request->brand) && $request->brand) {
-                $wheelfinish = $wheelfinish->whereIn('prodbrand', $request->brand);
+            if (isset($request->visualiserbrand) && $request->visualiserbrand) {
+                $wheelfinish = $wheelfinish->whereIn('prodbrand', $visualiserbrand);
             }
 
-            if (isset($request->diameter) && $request->diameter) {
-                $wheelfinish = $wheelfinish->whereIn('wheeldiameter', $request->diameter);
+            if (isset($request->visualiserdiameter) && $request->visualiserdiameter) {
+                $wheelfinish = $wheelfinish->whereIn('wheeldiameter', $visualiserdiameter);
             }
             
-            if (isset($request->width) && $request->width) {
-                $wheelfinish = $wheelfinish->whereIn('wheelwidth', $request->width);
+            if (isset($request->visualiserwidth) && $request->visualiserwidth) {
+                $wheelfinish = $wheelfinish->whereIn('wheelwidth', $visualiserwidth);
             }
 
             $wheelfinish =  $wheelfinish->select('prodfinish', \DB::raw('count(DISTINCT prodtitle) as total'))
             ->groupBy('prodfinish')
             ->get()
             ->sortBy('prodfinish');
+
+
+
+              // Filters  for Main listing products ------------------------->
+
+            if (isset($request->visualiserbrand) && $request->visualiserbrand)
+            {
+                $products = $products->whereIn('prodbrand', $visualiserbrand);
+                $branddesc = WheelProduct::select('prodbrand','proddesc')->whereIn('prodbrand', $visualiserbrand)
+                    ->get()
+                    ->unique('prodbrand');
+            }
+
+            if (isset($request->visualiserfinish) && $request->visualiserfinish) 
+                    $products = $products->whereIn('prodfinish', $visualiserfinish);
+
+            if (isset($request->visualiserdiameter) && $request->visualiserdiameter) 
+                    $products = $products->whereIn('wheeldiameter', $visualiserdiameter);
+
+            if (isset($request->visualiserwidth) && $request->visualiserwidth) 
+                    $products = $products->whereIn('wheelwidth', $visualiserwidth);
+ 
+
+
             // --------------------------------------------------------------------------------------------------
 
 
@@ -473,8 +504,26 @@ class SiteAPIController extends Controller
             $flag = $request->flag;
 
             if(@$request->listType == 'html'){
-                $listHtml = view('products-list-section', compact('products','flag','vehicle','wheelwidth','wheeldiameter','countsByBrand','wheelfinish','brands','offroadtype','liftsize','vehicleimage'))->render();
+                $listHtml = view('products-list-section', compact(
+                    'products',
+                    'flag',
+                    'vehicle',
+                    'wheelwidth',
+                    'wheeldiameter',
+                    'countsByBrand',
+                    'wheelfinish',
+                    'brands',
+                    'offroadtype',
+                    'liftsize',
+                    'vehicleimage',
+                    'visualiserbrand',
+                    'visualiserfinish',
+                    'visualiserdiameter',
+                    'visualiserwidth',
+            ))->render();
             }
+
+
 
             return response()->json(['status' =>true,'data'=>[
                 'products'=>$products, 

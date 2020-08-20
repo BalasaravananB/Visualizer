@@ -1,7 +1,6 @@
 var baseurl = "http://web9.vtdns.net"; 
 // var baseurl = "http://localhost:8001";
 
-$(".se-pre-con").fadeOut('slow');
 var boxes = null;
 var allData;
 var widthAdjusted = true;
@@ -20,7 +19,7 @@ var zipcode = '';
 var offroadtype = '';
 var liftsize = '';
 var qryData = getUrlVars();
-
+var current_page=1;
 var $loading = $('.waiting-loader');
 
 $(document).ready(function() {
@@ -435,7 +434,8 @@ function getWheelsList(paginateurl = '') {
                 if (result['status'] == true) {
 
                     products = result['data']['products'];
-
+                    console.log(products)
+                    current_page = products.current_page;
                     listProducts(result['data']);
                     getVisualiserModal(result['data']['vehicleimage'], result['data']['vehiclecolors'])
                     
@@ -691,10 +691,14 @@ $('body').on('click', '.pagination a', function(e) {
     getWheelsList(url);
     // window.history.pushState("", "", url);
 });
-$('body').on('click', '.wheeldiameter,.wheelwidth', function(e) {
+$('body').on('change', '.visualiserdiameter,.visualiserwidth,.visualiserbrand,.visualiserfinish', function(e) {
     e.preventDefault();
     $loading.show();
-    var url = baseurl + "/api/getWheels?" + $(this).attr('class') + "=" + $(this).val();
+    var values = $('.'+$(this).attr('class')+':checked').map(function() {
+        return $(this).val();
+    }).get();
+    console.log(values)
+    var url = baseurl + "/api/getWheels?page="+current_page+"&" + $(this).attr('class') + "=" + values;
     getWheelsList(url);
     // window.history.pushState("", "", url);
 });
@@ -792,3 +796,4 @@ $('body').on('click', '.visualiser-diameter-down', function(e) {
     }
     
 });
+
