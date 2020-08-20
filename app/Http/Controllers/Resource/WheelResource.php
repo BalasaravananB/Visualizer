@@ -173,4 +173,58 @@ class WheelResource extends Controller
             return back()->with('flash_error', 'Wheel Not Found');
         }
     }
+
+  
+
+
+
+    public function uploadcsv(Request $request){ 
+        try{   
+            $this->validate($request, [ 
+                'wheelfile'=>'required',
+            ]); 
+
+            if($request->hasFile('wheelfile') ){
+                $filename = $request->wheelfile->getClientOriginalName();  
+                $request->wheelfile->move(public_path('/storage/wheel_file'), $filename); 
+                // dd(base_path('storage/app/public/wheel_products_file/').$filename);
+                $filepath = base_path('storage/app/public/wheel_file/').$filename;  
+
+                if( !$fr = @fopen($filepath, "r") ) die("Failed to open file");
+                // $fw = fopen($out_file, "w");
+                $i=1;
+                while( ($data = fgetcsv($fr, 2000, ",")) !== FALSE ) {
+                        if($i != 1){  
+                            $wheel['part_no'] = $data[0]?:null;
+                            $wheel['brand'] = $data[1]?:null;
+                            $wheel['style'] = $data[2]?:null;
+                            $wheel['finish'] = $data[3]?:null;
+                            $wheel['image'] = $data[4]?:null;
+                            $wheel['boldpattern1'] = $data[5]?:null;
+                            $wheel['boldpattern2'] = $data[6]?:null;
+                            $wheel['boldpattern3'] = $data[7]?:null;
+                            $wheel['offset1'] = $data[8]?:null;
+                            $wheel['offset2'] = $data[9]?:null;
+                            $wheel['simpleoffset'] = $data[10]?:null;
+                            $wheel['wheeltype'] = $data[11]?:null;
+                            $wheel['wheeldiameter'] = $data[12]?:null;
+                            $wheel['wheelwidth'] = $data[13]?:null;
+                            $wheel['hub'] = $data[14]?:null;
+                            $wheel['frontimage'] = $data[15]?:null;
+                            $wheel['rearimage'] = $data[16]?:null;
+
+                            Wheel::updateOrCreate(['part_no' =>$wheel['part_no']] , $wheel); 
+                        
+                        }
+                        $i++;
+                    }
+                fclose($fr);
+            }  
+
+            return back()->with('flash_success','Wheel Data Uploaded successfully');
+        }catch(Exception $e){
+            return back()->with('flash_error',$e->getMessage());
+        } 
+
+    }
 }

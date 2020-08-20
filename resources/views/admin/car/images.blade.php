@@ -25,6 +25,7 @@
                             <thead>
                                 <tr>
                                     <th> S.No</th>
+                                    <th>Car ID </th>
                                     <th>Name </th>
                                     <th>CC </th>
                                     <th>Color</th>
@@ -36,6 +37,7 @@
 
                             <tr>
                                 <td>{{@$key+1}}</td>
+                                <td>{{@$car->car_id}} </td>
                                 <td>{{@$car->CarColor->where('code',@$car->color_code)->first()->name}}</td>
                                 <td>{{@$car->cc}} </td>
                                 <td>{{@$car->CarColor->where('code',@$car->color_code)->first()->simple}}</td>
@@ -148,7 +150,7 @@
                             <!-- New Model Content End -->
                             @empty
                             <tr>
-                                <td colspan="5">No Car Images found</td>
+                                <td colspan="6">No Car Images found</td>
                             </tr>
                             @endforelse
                         </table>

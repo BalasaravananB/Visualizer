@@ -30,6 +30,8 @@ $is_write_access = VerifyAccess('wheel','write');
                     <div style="text-align:right;padding-bottom: 20px">
                         
                     @if($is_write_access)
+                    <button type="button" class="btn btn-info" data-toggle="modal" data-target="#csvModal">Upload CSV </button>
+                    
                     <button type="button" class="btn btn-info" data-toggle="modal" data-target="#myModal">Add Wheel</button>
                     @endif
                     <a  class="btn btn-info"  href="{{url('admin/exportTable')}}?module=Wheel">Export CSV </a>
@@ -432,6 +434,61 @@ $is_write_access = VerifyAccess('wheel','write');
                     </div>
                     <!--New Model End  -->
 
+                    <!--  New Model Start-->
+                    <div class="modal fade" id="csvModal" role="dialog">
+                        <div class="modal-dialog admin-form">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                    <h4 class="modal-title">Upload CSV File</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <!-- New Model Content Start -->
+                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                        <div class="product-payment-inner-st"> 
+                                            <div id="myTabContent" class="tab-content custom-product-edit">
+                                                <div class="product-tab-list tab-pane fade active in" id="description2">
+                                                    <div class="row">
+                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                            <div class="review-content-section">
+                                                                <div id="dropzone1" class="pro-ad">
+
+                                                                    <form action="{{url('/admin/wheel/uploadcsv')}}" class="dropzone dropzone-custom needsclick add-professors dz-clickable" id="demo1-upload" method="POST" enctype="multipart/form-data">
+                                                                        {{@csrf_field()}} 
+                                                                        <div class="row">
+                                                                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                                                <label for="prodimage">CSV Formated File <span class="req">*</span></label>
+                                                                                <br>
+                                                                                <input type="file"  name="wheelfile"  class="dropify form-control-file" aria-describedby="fileHelp" required="">
+                                                                            </div> 
+                                                                        </div>
+                                                                        <br>
+                                                                        <div class="row">
+                                                                            <div class="col-lg-12">
+                                                                                <div class="payment-adress">
+                                                                                    <input type="submit" class="btn btn-primary waves-effect waves-light" value="Submit">
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </form>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- New Model Content End -->
+                                </div>
+                                <div class="modal-footer">
+                                    <!-- <button type="button" class="btn btn-default" data-dismiss="modal">Close</button> -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--New Model End  -->
                 </div>
             </div>
         </div>

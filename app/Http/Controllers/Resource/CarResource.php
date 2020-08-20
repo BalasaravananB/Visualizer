@@ -209,7 +209,7 @@ class CarResource extends Controller
     public function getCarImages($id)
     {
         $vif = Viflist::find($id);
-        $cars =CarImage::where('car_id',$vif->vif)->paginate(10);
+        $cars =CarImage::with('CarColor')->where('car_id',$vif->vif)->paginate(10);
         // dd($cars[0],$cars[0]->CarColor->where('code',$cars[0]->color_code)->first()->simple);
         $brands = Wheel::select('brand')->distinct('brand')->get();
         return view('admin.car.images',compact('cars','brands','vif'));
