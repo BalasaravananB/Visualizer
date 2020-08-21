@@ -580,29 +580,30 @@ class SiteAPIController extends Controller
             $wheel = null;
             $frontback = null;
             $position = [];
-            if ($vehicle == null)
+            if($vehicle != null)
             {
-                return response()->json(['status' => false, 'message' => 'Vehicle Not Found!']);
-
-            }
-            if (@$vehicle->vif != null)
-            {
-                $car_images = CarImage::select('car_id', 'image', 'color_code')->wherecar_id(@$vehicle->vif)
-                    ->where('image', 'LIKE', '%.png%')->with(['CarViflist' => function ($query)
+                // return response()->json(['status' => false, 'message' => 'Vehicle Not Found!']);
+                if (@$vehicle->vif != null)
                 {
-                    $query->select('vif', 'yr', 'make', 'model', 'body', 'drs', 'whls');
+                    $car_images = CarImage::select('car_id', 'image', 'color_code')->wherecar_id(@$vehicle->vif)
+                        ->where('image', 'LIKE', '%.png%')->with(['CarViflist' => function ($query)
+                    {
+                        $query->select('vif', 'yr', 'make', 'model', 'body', 'drs', 'whls');
 
-                }
-                , 'CarColor'])
-                    ->first();
-                if ($car_images == null)
-                {
-                    return response()->json(['status' => false, 'message' => 'Vehicle Image Not Found!']);
+                    }
+                    , 'CarColor'])
+                        ->first();
+                    if ($car_images != null)
+                    {
+                        
+                        $carimage = asset($car_images->image);
+                        $detectimage = public_path() . '/' . $car_images->image;
+                        // return response()->json(['status' => false, 'message' => 'Vehicle Image Not Found!']);
 
+                    }
                 }
-                $carimage = asset($car_images->image);
-                $detectimage = public_path() . '/' . $car_images->image;
             }
+
 
             if ($request->wheelpartno)
             {
