@@ -1,4 +1,4 @@
-var baseurl = "http://web9.vtdns.net"; 
+var baseurl = "http://web9.vtdns.net";
 // var baseurl = "http://localhost:8001";
 
 var boxes = null;
@@ -19,12 +19,12 @@ var zipcode = '';
 var offroadtype = '';
 var liftsize = '';
 var qryData = getUrlVars();
-var current_page=1;
+var current_page = 1;
 var $loading = $('.waiting-loader');
 
 $(document).ready(function() {
     if (qryData['pagename'] == 'list') {
-        getWheelsList(); 
+        getWheelsList();
     }
     vehicleFilters();
     $loading.fadeOut("slow");
@@ -238,7 +238,7 @@ $(document).on('click', '.select-offroad', function() {
             accesstoken: accesstoken
         };
 
-        
+
 
         $loading.show();
         $.ajax({
@@ -252,7 +252,7 @@ $(document).on('click', '.select-offroad', function() {
 
                     $loading.fadeOut('slow');
                     if (result['status'] == true) {
-                        
+
                         loadOffroadSizeView(result['data']);
                     } else {
                         flag = 'searchByVehicle';
@@ -298,7 +298,6 @@ function loadOffroadSizeView(data) {
     });
 
     loadSizeStr += `
-
                             </div>
                         </div>
                     </div>
@@ -422,14 +421,14 @@ function getWheelsList(paginateurl = '') {
         }
     }
 
-    
+
     if (qryData['pagename'] == 'list') {
         $.ajax({
             url: url,
             data: data,
             type: "POST",
             success: function(result) {
-                
+
 
                 if (result['status'] == true) {
 
@@ -438,7 +437,7 @@ function getWheelsList(paginateurl = '') {
                     current_page = products.current_page;
                     listProducts(result['data']);
                     getVisualiserModal(result['data']['vehicleimage'], result['data']['vehiclecolors'])
-                    
+
                     if (paginateurl == '') {
 
                         getWheelByVehicle();
@@ -461,7 +460,7 @@ function getWheelsList(paginateurl = '') {
 
 
 function listProducts(products) {
-    
+
     $('#Visualiser-Products-Section').html(products['htmllist']);
 
     // $(".waiting-loader").fadeOut("slow");
@@ -559,8 +558,8 @@ $('body').on('click', '.visualiser-car-color', function(e) {
 
 
 function getWheelByVehicle(key = '0', isShow) {
-    
-    
+
+
 
     partno = $('#frontback-image-' + key).data('partno');
 
@@ -577,7 +576,7 @@ function getWheelByVehicle(key = '0', isShow) {
         accesstoken: accesstoken,
     };
 
-    
+
     $(".waiting-loader").show();
     $.ajax({
         url: baseurl + "/api/WheelByVehicle",
@@ -587,13 +586,13 @@ function getWheelByVehicle(key = '0', isShow) {
         type: "POST",
         success: function(result) {
 
-            
+
             if (result['status'] == true) {
 
                 allData = result['data'];
 
 
-                
+
 
                 if (typeof allData['position'] != 'object') {
 
@@ -602,7 +601,7 @@ function getWheelByVehicle(key = '0', isShow) {
                     boxes = allData['position'];
                 }
 
-                
+
 
                 // $("#VisualiserModal").modal("show");
 
@@ -648,7 +647,7 @@ function APIWheelMapping(key, isShow = null) {
                     b = boxes[0];
                 }
 
-                
+
                 var front = $('#visualiser-wheel-front');
                 front.css('left', f[0] - 18 + 'px');
                 front.css('top', f[1] - 1 - 30 + 'px');
@@ -671,7 +670,7 @@ function APIWheelMapping(key, isShow = null) {
             $loading.fadeOut("slow");
 
         } else {
-            
+
             // $("#VisualiserModal").modal("show");
             $('#vehicle-image').attr('src', allData['carimage']);
             $('#visualiser-wheel-front').attr('src', $('#frontback-image-' + key).val());
@@ -694,11 +693,11 @@ $('body').on('click', '.pagination a', function(e) {
 $('body').on('change', '.visualiserdiameter,.visualiserwidth,.visualiserbrand,.visualiserfinish', function(e) {
     e.preventDefault();
     $loading.show();
-    var values = $('.'+$(this).attr('class')+':checked').map(function() {
+    var values = $('.' + $(this).attr('class') + ':checked').map(function() {
         return $(this).val();
     }).get();
     console.log(values)
-    var url = baseurl + "/api/getWheels?page="+current_page+"&" + $(this).attr('class') + "=" + values;
+    var url = baseurl + "/api/getWheels?page=" + current_page + "&" + $(this).attr('class') + "=" + values;
     getWheelsList(url);
     // window.history.pushState("", "", url);
 });
@@ -750,13 +749,13 @@ $('body').on('click', '.visualiser-diameter-up', function(e) {
 
         diameterStepCount = diameterStepCount + 1;
     }
-    
+
 
 });
 
 $('body').on('click', '.visualiser-diameter-down', function(e) {
     var key = $(this).attr('data-id');
-    
+
     if (key != currentKey) {
         diameterStepCount = 0;
         diameterStepLimit = 8;
@@ -794,6 +793,5 @@ $('body').on('click', '.visualiser-diameter-down', function(e) {
 
         diameterStepCount = diameterStepCount - 1;
     }
-    
-});
 
+});
