@@ -20,7 +20,7 @@ class CarResource extends Controller
     */
     public function index()
     {
-        $cars = Viflist::has('CarImages')->orderBy('id','DESC')->paginate(5); 
+        $cars = Viflist::has('CarImages')->paginate(5); 
         // $cars = Viflist::with('CarImages')->paginate(10);
         $brands = Wheel::select('brand')->distinct('brand')->get();
         $makes = Viflist::select('make')->distinct('make')->get();
@@ -376,22 +376,21 @@ class CarResource extends Controller
                 
                 while( ($data = fgetcsv($fr, 2000000, ",")) !== FALSE ) {
                     if($i != 1){ 
-                        if((isset($data[0])&&$data[0]!='')){
-                            $vif = new Viflist;
-                            $vif->vif =$data[0];
-                            $vif->org =$data[1];
-                            $vif->send =$data[2];
-                            $vif->yr =$data[3];
-                            $vif->make =$data[4];
-                            $vif->model =$data[5];
-                            $vif->trim =$data[6];
-                            $vif->drs =$data[7];
-                            $vif->body =$data[8];
-                            $vif->cab =$data[9];
-                            $vif->whls =$data[10];
-                            $vif->vin =$data[11];
-                            $vif->date_delivered =$data[12];
-                            $vif->save(); 
+                        if((isset($data[0])&&$data[0]!='')){ 
+                            $vif['vif'] =$data[0];
+                            $vif['org'] =$data[1];
+                            $vif['send'] =$data[2];
+                            $vif['yr'] =$data[3];
+                            $vif['make'] =$data[4];
+                            $vif['model'] =$data[5];
+                            $vif['trim'] =$data[6];
+                            $vif['drs'] =$data[7];
+                            $vif['body'] =$data[8];
+                            $vif['cab'] =$data[9];
+                            $vif['whls'] =$data[10];
+                            $vif['vin'] =$data[11];
+                            $vif['date_delivered'] =$data[12]; 
+                            Viflist::updateOrCreate(['vif' =>$vif['vif']] , $vif ); 
                         }
                     }
                     $i++;
@@ -413,19 +412,53 @@ class CarResource extends Controller
                 
                 while( ($data = fgetcsv($fr, 2000000, ",")) !== FALSE ) {
                     if($i != 1){ 
-                        if((isset($data[0])&&$data[0]!='')){
-                            $carimage = new CarImage;
-                            $carimage->car_id =$data[0];
-                            $carimage->cc =$data[1];
-                            $carimage->color_code =$data[2];
-                            $carimage->image =$data[3]; 
-                            $carimage->save(); 
+                        if((isset($data[0])&&$data[0]!='')){ 
+                            $carimage['car_id'] =$data[0];
+                            $carimage['cc'] =$data[1];
+                            $carimage['color_code'] =$data[2];
+                            $carimage['image'] =$data[3];  
+
+                            CarImage::updateOrCreate(['car_id' =>$carimage['car_id'],'color_code' =>$carimage['color_code']] , $carimage ); 
                         }
+
                     }
                     $i++;
                 }
                 fclose($fr);
                 return back()->with('flash_success','Car Images Data Uploaded successfully');
+            }elseif($request->hasFile('carcolorsuploadedfile') && $request->type == 'carcolors' ){
+                $filename = $request->carcolorsuploadedfile->getClientOriginalName();  
+                $request->carcolorsuploadedfile->move(public_path('/storage/uploaded_csv'), $filename); 
+                // dd(base_path('storage/app/public/uploaded_csv/').$filename);
+                $filepath = base_path('storage/app/public/uploaded_csv/').$filename;  
+
+                if( !$fr = @fopen($filepath, "r") ){
+
+                    return back()->with('flash_error',"File Could not be read!!");
+                }
+                // $fw = fopen($out_file, "w");
+                $i=1;
+                
+                while( ($data = fgetcsv($fr, 2000000, ",")) !== FALSE ) {
+                    if($i != 1){ 
+                        if((isset($data[0])&&$data[0]!='')){
+ 
+                            $carcolor['vif'] = $data[0]?:null;
+                            $carcolor['code'] = $data[1]?:null;
+                            $carcolor['evoxcode'] = $data[2]?:null;
+                            $carcolor['name'] = $data[3]?:null;
+                            $carcolor['rgb1'] = $data[4]?:null;
+                            $carcolor['rgb2'] = $data[5]?:null;
+                            $carcolor['simple'] = $data[6]?:null;
+                            $carcolor['shot'] = $data[7]?:null; 
+
+                            CarColor::updateOrCreate(['vif' =>$carcolor['vif'],'code' =>$carcolor['code']] , $carcolor ); 
+                        }
+                    }
+                    $i++;
+                }
+                fclose($fr);
+                return back()->with('flash_success','Car Colors Data Uploaded successfully');
             }else{
                 return back()->with('flash_error',"File Could not be read!!");
             }
