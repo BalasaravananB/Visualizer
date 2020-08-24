@@ -49,6 +49,16 @@ class HomeController extends Controller
 
         return view('home',compact('Wheels','years','Tires'));
     }
+
+    public function notfound()
+    {  
+
+        return view('errors.404'); 
+    }
+
+
+
+
     public function search(Request $request)
     {  
             
