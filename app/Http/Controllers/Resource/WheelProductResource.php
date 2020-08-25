@@ -18,7 +18,7 @@ class WheelProductResource extends Controller
     public function index(Request $request)
     {        
 
-        $selectFields=['id','prodbrand', 'prodmodel', 'prodimage', 'wheeldiameter', 'wheelwidth', 'prodtitle','detailtitle', 'prodfinish', 'proddesc'];
+        $selectFields=['id','prodbrand', 'prodmodel', 'prodimage'];
 
         $wheelproducts = WheelProduct::get($selectFields)->unique('prodmodel');
         // dd($tires);
