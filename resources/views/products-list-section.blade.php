@@ -199,7 +199,7 @@
 
                                     <div class="thumb-description">
                                         <div class="caption">
-                                            <h4><a href="{{url('/wheelproductview',$product->id)}}{{@$flag?'/'.$flag:''}}{{'/'.str_replace(' ', '+', $product->detailtitle)}}">{{$product->detailtitle}}
+                                            <h4><a href="/wheelproductview/{{$product->id}}/{{@$flag?'/'.$flag:''}}{{'/'.str_replace(' ', '+', $product->detailtitle)}}">{{$product->detailtitle}}
                                                 @if(@Request::get('visualiserdiameter'))
                                                     <br> {{'Diameter : '.$product->wheeldiameter}}
                                                 @endif
@@ -248,7 +248,7 @@
                                     
                                         </div>
                                         <div class="button-group">
-                                            <a href="{{url('/wheelproductview',$product->id)}}{{@$flag?'/'.$flag:''}}">
+                                            <a href="/wheelproductview/{{$product->id}}/{{@$flag?'/'.$flag:''}}">
                                             <button class="btn-cart" type="button" title="Add to Cart"><i class="fa fa-shopping-cart"></i>
                                                 <span class="hidden-xs hidden-sm hidden-md">Add to Cart</span>
                                             </button>
