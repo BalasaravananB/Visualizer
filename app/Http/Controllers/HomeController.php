@@ -1766,7 +1766,7 @@ public function vftp_to_sql_test($filename){
 
     public function VerifyWheelProductImages(Request $request)
     { 
-        $products = WheelProduct::with('wheel')->get();
+        $products = WheelProduct::with('wheel')->select('id','partno','partno_old','prodimage')->get();
         $arr=[];
         foreach ($products as $key => $product) {
             // dd($product->wheel,$product->wheel != null);
