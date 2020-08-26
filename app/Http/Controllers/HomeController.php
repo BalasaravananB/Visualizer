@@ -1791,15 +1791,18 @@ public function vftp_to_sql_test($filename){
     { 
         $products = WheelProduct::with('wheel')->select('id','partno','partno_old','prodimage')->get()->unique('prodimage');
         $arr=[];
-        foreach ($products as $key => $product) {
-            // dd($product->wheel,$product->wheel != null);
+        foreach ($products as $key => $product) { 
             if($product->wheel != null){ 
+                if(!array_key_exists($product->prodimage,$arr)){
                     $arr[$product->prodimage]=missing_frontbackimages($product->wheel->image,'wheel'); 
+                }
             }else{ 
+                if(!array_key_exists($product->prodimage,$arr)){
                     $arr[$product->prodimage]=missing_frontbackimages($product->prodimage,'product'); 
+                }
             }
             
-        }
+        } 
         dd($arr);
     }
 
