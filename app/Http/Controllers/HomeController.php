@@ -1784,6 +1784,25 @@ public function vftp_to_sql_test($filename){
         }
         dd($arr);
     }
+
+
+
+    public function getListOfMissingFrontBack(Request $request)
+    { 
+        $products = WheelProduct::with('wheel')->select('id','partno','partno_old','prodimage')->get();
+        $arr=[];
+        foreach ($products as $key => $product) {
+            // dd($product->wheel,$product->wheel != null);
+            if($product->wheel != null){ 
+                    $arr[$product->prodimage]=missing_frontbackimages($product->wheel->image,'wheel'); 
+            }else{ 
+                    $arr[$product->prodimage]=missing_frontbackimages($product->prodimage,'product'); 
+            }
+            
+        }
+        dd($arr);
+    }
+
 }
 
 

@@ -191,6 +191,41 @@ function front_back_filecheck($imgPath){
 	}
 }
 
+function missing_frontbackimages($imgPath,$from){  
+
+	// return $imgPath;
+	$imageArray = explode('/', $imgPath);
+	$filename = str_replace(".jpg","",end($imageArray)); 
+	$filename = str_replace(".png","",$filename); //explode('.', end($imageArray));  
+	$filename = str_replace(".jpeg","",$filename); //explode('.', end($imageArray)); 
+
+	if($from == 'wheel'){
+		if(file_exists(base_path('storage/app/public/wheels/front_back/'.$filename.'.png'))|| file_exists(base_path('storage/app/public/wheels/front_back/'.$filename.'.jpg'))){
+			return 'Existing At Wheel & Image Found';
+		}else{
+
+			return 'Existing At Wheel But Image Not Found';
+		}
+	}else{
+		if(file_exists(base_path('storage/app/public/wheels/front_back/'.$filename.'.png'))|| file_exists(base_path('storage/app/public/wheels/front_back/'.$filename.'.jpg'))){
+			return 'Does not Exist At Wheel & Image Found';
+		}else{
+
+			return 'Does not Exist At Wheel But Image Not Found';
+		}
+	}
+	// if($imageArray != null){
+	// 	if(file_exists(base_path('storage/app/public/wheels/front_back/'.$filename.'.png'))|| file_exists(base_path('storage/app/public/wheels/front_back/'.$filename.'.jpg'))){
+
+	// 		return 'storage/wheels/front_back/'.$filename.'.png';
+	// 	}else{
+
+	// 		return false;
+	// 	}
+	// }else{
+	// 	return $imgPath;
+	// }
+}
 function ViewUserProfileImage($url=''){
 	if($url != ''){
 		if(file_exists(public_path('/storage/'.$url))){
