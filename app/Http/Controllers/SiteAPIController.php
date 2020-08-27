@@ -34,8 +34,7 @@ class SiteAPIController extends Controller
 
 
     public function getVehicles(Request $request)
-    {
-            
+    { 
         try
         {
             $vehicle = new Vehicle;
@@ -72,7 +71,7 @@ class SiteAPIController extends Controller
                 ->wheremodel($request->model)
                 ->orderBy('submodel', 'ASC')
                 ->get();
-            // dd($allData['submodel']);
+
             if ($request->changeBy == '')
             {
                 return response()
@@ -559,8 +558,7 @@ class SiteAPIController extends Controller
             'model'=>'required',
             'year'=>'required',
             'submodel'=>'required',
-            'wheelpartno' => 'required|max:255',
-            // 'vehicleid' => 'required|max:255'
+            'wheelpartno' => 'required|max:255', 
         ]);
 
         if ($validator->fails())
@@ -570,8 +568,7 @@ class SiteAPIController extends Controller
         }
         try
         {
-
-            // $vehicle = Vehicle::where('vehicle_id',$request->vehicleid)->first();
+ 
 
             $vehicle = $this->findVehicleData($request);
             $carimage = null;
@@ -581,14 +578,13 @@ class SiteAPIController extends Controller
             $frontback = null;
             $position = [];
             if($vehicle != null)
-            {
-                // return response()->json(['status' => false, 'message' => 'Vehicle Not Found!']);
+            { 
                 if (@$vehicle->vif != null)
                 {
                     $car_images = CarImage::select('car_id', 'image', 'color_code')->wherecar_id(@$vehicle->vif)
                         ->where('image', 'LIKE', '%.png%')->with(['CarViflist' => function ($query)
                     {
-                        $query->select('vif', 'yr', 'make', 'model', 'body', 'drs', 'whls');
+                        $query->select('vif');
 
                     }
                     , 'CarColor'])
@@ -597,8 +593,7 @@ class SiteAPIController extends Controller
                     {
                         
                         $carimage = asset($car_images->image);
-                        $detectimage = public_path() . '/' . $car_images->image;
-                        // return response()->json(['status' => false, 'message' => 'Vehicle Image Not Found!']);
+                        $detectimage = public_path() . '/' . $car_images->image; 
 
                     }
                 }
@@ -687,7 +682,7 @@ class SiteAPIController extends Controller
 
     public function findVehicleData($data)
     {
-        $vehicle = Vehicle::with('Plussizes', 'ChassisModels', 'Offroads')->select('vehicle_id', 'vif', 'year', 'make', 'model', 'submodel', 'dr_chassis_id', 'dr_model_id', 'year_make_model_submodel', 'sort_by_vehicle_type', 'wheel_type', 'rf_lc', 'offroad', 'dually')
+        $vehicle = Vehicle::select('vehicle_id', 'vif', 'year', 'make', 'model', 'submodel', 'dr_chassis_id', 'dr_model_id', 'year_make_model_submodel', 'sort_by_vehicle_type', 'wheel_type', 'rf_lc', 'offroad', 'dually')
             ->where('year', $data->year)
             ->where('make', $data->make)
             ->where('model', $data->model);
