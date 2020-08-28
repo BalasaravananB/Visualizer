@@ -603,8 +603,7 @@ class SiteAPIController extends Controller
             if ($request->wheelpartno)
             {
                 $wheelpro = WheelProduct::with('wheel')->where('partno', $request->wheelpartno)
-                    ->first();
-                // dd($wheelpro->wheel);
+                    ->first(); 
                 if ($wheelpro)
                 {
                     if (@$wheelpro->wheel)

@@ -143,7 +143,7 @@
                                 @endif
                             </p> 
                           </div>
-                          <!-- <div class="col-md-4 right-button"><button type="submit" class="btn vehicle-change"><a href="{{url('/products')}}">Change</a></button></div> -->
+                            <div class="col-md-4 right-button"><button  class="btn vehicle-change" data-toggle="modal" data-target="#changeVehicleModal" ><a href="#">Change</a></button></div>
                       </div>
                   </div>
                   @endif
@@ -199,7 +199,7 @@
 
                                     <div class="thumb-description">
                                         <div class="caption">
-                                            <h4><a href="/wheelproductview/{{$product->id}}{{@$flag?'/'.$flag:''}}{{'/'.str_replace(' ', '+', $product->detailtitle)}}">{{$product->detailtitle}}
+                                            <h4><a href="/wheelproductview/{{$product->id}}{{@$flag?'/'.$flag:''}}{{'/'.str_replace(' ', '+', $product->detailtitle)}}?v={{$vehicle->vehicle_id}}">{{$product->detailtitle}}
                                                 @if(@Request::get('visualiserdiameter'))
                                                     <br> {{'Diameter : '.$product->wheeldiameter}}
                                                 @endif
@@ -248,7 +248,7 @@
                                     
                                         </div>
                                         <div class="button-group">
-                                            <a href="/wheelproductview/{{$product->id}}{{@$flag?'/'.$flag:''}}">
+                                            <a href="/wheelproductview/{{$product->id}}{{@$flag?'/'.$flag:''}}?v={{$vehicle->vehicle_id}}">
                                             <button class="btn-cart" type="button" title="Add to Cart"><i class="fa fa-shopping-cart"></i>
                                                 <span class="hidden-xs hidden-sm hidden-md">Add to Cart</span>
                                             </button>
