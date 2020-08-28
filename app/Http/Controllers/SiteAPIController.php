@@ -552,25 +552,30 @@ class SiteAPIController extends Controller
     public function WheelByVehicle(Request $request)
     {
 
-        
-        $validator = Validator::make($request->all() , [
-            'make'=>'required',
-            'model'=>'required',
-            'year'=>'required',
-            'submodel'=>'required',
-            'wheelpartno' => 'required|max:255', 
-        ]);
+            
+        // $validator = Validator::make($request->all() , [
+        //     'make'=>'required',
+        //     'model'=>'required',
+        //     'year'=>'required',
+        //     'submodel'=>'required',
+        //     'wheelpartno' => 'required|max:255', 
+        // ]);
 
-        if ($validator->fails())
-        {
+        // if ($validator->fails())
+        // {
 
-            return response()->json(['status' => false, 'error' => $validator->messages() ]);
-        }
+        //     return response()->json(['status' => false, 'error' => $validator->messages() ]);
+        // }
         try
         {
- 
+            
+            if($request->vehicleid != ''){
 
-            $vehicle = $this->findVehicleData($request);
+                $vehicle = Vehicle::where('vehicle_id',$request->vehicleid)->first();
+            }else{
+
+                $vehicle = $this->findVehicleData($request);
+            }
             $carimage = null;
             $car_images = null;
             $detectimage = null;

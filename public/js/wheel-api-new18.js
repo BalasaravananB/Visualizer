@@ -811,7 +811,6 @@ function getWheelByVehicle(key = '0', isShow) {
 
 
     partno = $('#frontback-image-' + key).data('partno');
-
     if (partno == undefined) {
         partno = '0000';
     }
@@ -820,11 +819,12 @@ function getWheelByVehicle(key = '0', isShow) {
         model: qryData['model'],
         year: qryData['year'],
         submodel: qryData['submodel'],
-        vehicleid: qryData['vehicleid'],
+        vehicleid: qryData['v'],
         wheelpartno: partno,
         accesstoken: accesstoken,
     };
 
+    console.log(partno,data)
 
     $(".waiting-loader").show();
     $.ajax({
@@ -835,7 +835,7 @@ function getWheelByVehicle(key = '0', isShow) {
         type: "POST",
         success: function(result) {
 
-
+            console.log(key, isShow)
             if (result['status'] == true) {
 
                 allData = result['data'];
@@ -873,11 +873,16 @@ function getWheelByVehicle(key = '0', isShow) {
 }
 
 function APIWheelMapping(key, isShow = null) {
-    if (boxes == 'undefined') {
+        console.log(boxes);
+    if (boxes == 'undefined' || boxes == null) {
         getWheelByVehicle(key, isShow);
     } else {
         if (isShow == null) {
-
+            
+            // if(!$('#VisualiserModal').hasClass('in')){
+            //         getVisualiserModal();
+            //         $("#VisualiserModal").modal("show");
+            // }
             $('#vehicle-image').attr('src', allData['carimage']);
             $('#visualiser-wheel-front').attr('src', allData['frontimage']);
             $('#visualiser-wheel-back').attr('src', allData['frontimage']);
