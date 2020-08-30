@@ -70,7 +70,7 @@ $(document).on('change', '.year,.make,.model', function() {
 $(document).on('change', '.cyear,.cmake,.cmodel', function() {
     cchangeBy = $(this).attr('name');
     console.log('cchangeBy',cchangeBy)
-    changeVehicleFilters(cchangeBy);
+    changeVehicleFilters(cchangeBy,$(this));
 });
 
 
@@ -157,8 +157,11 @@ function vehicleFilters(changeBy = '') {
 }
 
 
-function changeVehicleFilters(cchangeBy = '') {
- 
+function changeVehicleFilters(cchangeBy = '',elem) { 
+    if(elem != undefined){
+        console.log($(elem).attr('name'))
+        console.log($('.c'+$(elem).attr('name')).val($(elem).val()))
+    }
     cmake = $('.cmake').val();
     cyear = $('.cyear').val();
     cmodel = $('.cmodel').val();
@@ -171,7 +174,7 @@ function changeVehicleFilters(cchangeBy = '') {
         changeBy: cchangeBy,
         accesstoken: accesstoken
     }
-    console.log(data);
+    console.log('ChangeData',data);
     $.ajax({
         url: baseurl + "/api/getVehicles",
         data: data,
@@ -640,6 +643,7 @@ function listProducts(products) {
 
 
 function getVisualiserModal(vehicleData = '', vehicleColors = '') {
+    console.log('getVisualiserModal')
     var vehicleimage = "#";
     var vehiclecolors = [];
     if (vehicleData != null) {
@@ -721,8 +725,6 @@ function changeVehicleModal()
 
 
     var modalStr=`
-
-                          
                             <div class="modal fade " id="changeVehicleModal" role="dialog">
                                 <div class="modal-dialog wheel-view">
                                     <div class="modal-content">
@@ -783,8 +785,6 @@ function changeVehicleModal()
                                     </div>
                                 </div>
                             </div>
-
-
     `;
     $('#ChangeVehicleSection').html(modalStr);
 }
@@ -878,7 +878,7 @@ function APIWheelMapping(key, isShow = null) {
         getWheelByVehicle(key, isShow);
     } else {
         if (isShow == null) {
-            
+            console.log(allData)
             // if(!$('#VisualiserModal').hasClass('in')){
             //         getVisualiserModal();
             //         $("#VisualiserModal").modal("show");
@@ -938,6 +938,57 @@ function APIWheelMapping(key, isShow = null) {
 
 
 }
+
+
+
+function ApplyOnCar(partno,vehicleid){
+
+        var data={
+            wheelpartno:partno,
+            vehicleid:vehicleid,
+            accesstoken:accesstoken
+        }
+
+        $.ajax({
+            url: baseurl + '/api/WheelByVehicle',
+            data: data,
+            type: "POST",
+            success: function(result) {
+ 
+                if (result['status'] == true) { 
+                    allData = result['data'];
+                    if (typeof allData['position'] != 'object') {
+                        boxes = JSON.parse(allData['position']);
+                    } else {
+                        boxes = allData['position'];
+                    }
+                    getVisualiserModal(result['data']['vehicleimage'], result['data']['vehiclecolors'])
+                    $('#VisualiserModal').modal('show');
+                    APIWheelMapping('0');   
+                } else { 
+                    $loading.fadeOut("slow");
+                    showAlert(result['message']);
+                }
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                showAlert('Something Went Wrong!')
+            }
+        });
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 $('body').on('click', '.pagination a', function(e) {
     e.preventDefault();

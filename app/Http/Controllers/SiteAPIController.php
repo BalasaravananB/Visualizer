@@ -577,16 +577,17 @@ class SiteAPIController extends Controller
                 $vehicle = $this->findVehicleData($request);
             }
             $carimage = null;
-            $car_images = null;
+            $vehicleimage = null;
             $detectimage = null;
             $wheel = null;
             $frontback = null;
             $position = [];
+            $vehiclecolors=[];
             if($vehicle != null)
             { 
                 if (@$vehicle->vif != null)
                 {
-                    $car_images = CarImage::select('car_id', 'image', 'color_code')->wherecar_id(@$vehicle->vif)
+                    $vehicleimage = CarImage::select('car_id', 'image', 'color_code')->wherecar_id(@$vehicle->vif)
                         ->where('image', 'LIKE', '%.png%')->with(['CarViflist' => function ($query)
                     {
                         $query->select('vif');
@@ -594,13 +595,22 @@ class SiteAPIController extends Controller
                     }
                     , 'CarColor'])
                         ->first();
-                    if ($car_images != null)
+                    if ($vehicleimage != null)
                     {
                         
-                        $carimage = asset($car_images->image);
-                        $detectimage = public_path() . '/' . $car_images->image; 
+                        $carimage = asset($vehicleimage->image);
+                        $detectimage = public_path() . '/' . $vehicleimage->image; 
 
                     }
+
+
+                    // Wheel Visualiser Flow for Shop by Vehicle
+                    if(@$vehicle->vif != null){
+                        $vehicleimage = CarImage::select('car_id','image','color_code')->wherecar_id(@$vehicle->vif)->where('image', 'LIKE', '%.png%')
+                        ->with(['CarColor'])->first();
+                        $vehiclecolors = CarImage::wherecar_id($vehicle->vif)->where('image', 'LIKE', '%.png%')->pluck('image','color_code');
+                    }
+
                 }
             }
 
@@ -611,15 +621,15 @@ class SiteAPIController extends Controller
                     ->first(); 
                 if ($wheelpro)
                 {
-                    if (@$wheelpro->wheel)
+                    if ($wheelpro->wheel != null)
                     {
-                        $frontback = front_back_path(@$wheelpro
-                            ->wheel
+                        $frontback = front_back_path($wheelpro
+                            ->wheelaqqqqqq
                             ->image);
                     }
                     else
                     {
-                        $frontback = front_back_path(@$wheelpro->prodimage);
+                        $frontback = front_back_path($wheelpro->prodimage);
                     }
                 }
                 else
@@ -627,15 +637,17 @@ class SiteAPIController extends Controller
 
                     // return response()->json(['status' => false, 'message' => 'Wheel Product Not Found!']);
                 }
+ 
             }
 
 
             if($carimage != null){
 
                 Log::info('Process Initiate');
-                $process = new Process("python3 " . public_path() . "/js/detect-wheel.py " . $detectimage . " " . public_path() . " " . @$car_images->car_id);
-
-                $process->run();
+                Log::info('Process Initiate');
+                $process = new Process("python3 " . public_path() . "/js/detect-wheel.py " . $detectimage . " " . public_path() . " " . @$vehicleimage->car_id);
+                try {
+                    $process->run();
                 Log::info('Process Run');
                 // $process->setIdleTimeout(60);
                 // executes after the command finishes
@@ -662,6 +674,9 @@ class SiteAPIController extends Controller
 
                 }
 
+                } catch (Exception $e) {
+                    Log::info('Exception Message'.$e->getMessage());
+                }
                 Log::info('Response Binded');
             }else{
                 Log::info('Car Image Not Found');
@@ -674,7 +689,9 @@ class SiteAPIController extends Controller
                 'carimage' => $carimage, 
                 'frontimage' => asset($frontback) , 
                 'backimage' => asset($frontback) , 
-                'position' => $position
+                'position' => $position, 
+                'vehicleimage'=>$vehicleimage,
+                'vehiclecolors'=>$vehiclecolors
             ];
             return response()->json(['status' => true, 'data' => $data ]);
         }
