@@ -883,8 +883,11 @@ function APIWheelMapping(key, isShow = null) {
             //         getVisualiserModal();
             //         $("#VisualiserModal").modal("show");
             // }
-            showAlert('Vehicle Image Not Found!!')
-            $("#VisualiserModal").modal("hide");
+            if(allData['carimage'] == null){
+
+                showAlert('Vehicle Image Not Found!!')
+                $("#VisualiserModal").modal("hide");
+            }
             $('#vehicle-image').attr('src', allData['carimage']);
             $('#visualiser-wheel-front').attr('src', allData['frontimage']);
             $('#visualiser-wheel-back').attr('src', allData['frontimage']);
@@ -929,9 +932,13 @@ function APIWheelMapping(key, isShow = null) {
 
         } else {
 
-            // $("#VisualiserModal").modal("show");
-            showAlert('Vehicle Image Not Found!!')
-            $("#VisualiserModal").modal("hide");
+            // $("#VisualiserModal").modal("
+            if(allData['carimage'] == null){
+
+                showAlert('Vehicle Image Not Found!!')
+                $("#VisualiserModal").modal("hide");
+            }
+            
             $('#vehicle-image').attr('src', allData['carimage']);
             $('#visualiser-wheel-front').attr('src', $('#frontback-image-' + key).val());
             $('#visualiser-wheel-back').attr('src', $('#frontback-image-' + key).val());
