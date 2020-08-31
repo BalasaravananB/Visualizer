@@ -624,7 +624,7 @@ class SiteAPIController extends Controller
                     if ($wheelpro->wheel != null)
                     {
                         $frontback = front_back_path($wheelpro
-                            ->wheelaqqqqqq
+                            ->wheel
                             ->image);
                     }
                     else

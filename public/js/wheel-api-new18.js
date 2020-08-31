@@ -883,6 +883,8 @@ function APIWheelMapping(key, isShow = null) {
             //         getVisualiserModal();
             //         $("#VisualiserModal").modal("show");
             // }
+            showAlert('Vehicle Image Not Found!!')
+            $("#VisualiserModal").modal("hide");
             $('#vehicle-image').attr('src', allData['carimage']);
             $('#visualiser-wheel-front').attr('src', allData['frontimage']);
             $('#visualiser-wheel-back').attr('src', allData['frontimage']);
@@ -928,6 +930,8 @@ function APIWheelMapping(key, isShow = null) {
         } else {
 
             // $("#VisualiserModal").modal("show");
+            showAlert('Vehicle Image Not Found!!')
+            $("#VisualiserModal").modal("hide");
             $('#vehicle-image').attr('src', allData['carimage']);
             $('#visualiser-wheel-front').attr('src', $('#frontback-image-' + key).val());
             $('#visualiser-wheel-back').attr('src', $('#frontback-image-' + key).val());
@@ -941,14 +945,25 @@ function APIWheelMapping(key, isShow = null) {
 
 
 
-function ApplyOnCar(partno,vehicleid){
+function ApplyOnCar(partno,vehicleid,vehicleDetails={}){
 
+    $(".waiting-loader").show();
         var data={
             wheelpartno:partno,
             vehicleid:vehicleid,
             accesstoken:accesstoken
         }
-
+        console.log(vehicleDetails,Object.keys(vehicleDetails).length)
+        if(Object.keys(vehicleDetails).length > 0){
+            var data={
+                wheelpartno:partno,
+                make:vehicleDetails['make'],
+                year:vehicleDetails['year'],
+                model:vehicleDetails['model'],
+                submodel:vehicleDetails['submodel'], 
+                accesstoken:accesstoken
+            }
+        }
         $.ajax({
             url: baseurl + '/api/WheelByVehicle',
             data: data,
@@ -977,16 +992,6 @@ function ApplyOnCar(partno,vehicleid){
 
 
 }
-
-
-
-
-
-
-
-
-
-
 
 
 
