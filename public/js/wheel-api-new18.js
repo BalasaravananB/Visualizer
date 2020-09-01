@@ -5,19 +5,14 @@ var boxes = null;
 var allData;
 var widthAdjusted = true;
 
-var actionFrom="load";
+var actionFrom = "load";
 
 var make = $('.make').val();
 var year = $('.year').val();
 var model = $('.model').val();
 var submodel = $('.submodel').val();
 var changeBy = '';
-
-
-
-
-
-
+ 
 var vehicle = '';
 var vehicleid = '';
 var offroadid = '';
@@ -29,6 +24,14 @@ var qryData = getUrlVars();
 var current_page = 1;
 var $loading = $('.waiting-loader');
 
+
+var cmake = $('.cmake').val() ?? '';
+var cyear = $('.cyear').val() ?? '';
+var cmodel = $('.cmodel').val() ?? '';
+var csubmodel = $('.csubmodel').val() ?? '';
+var cchangeBy = '';
+
+
 $(document).ready(function() {
     if (qryData['pagename'] == 'list' || qryData['pagename'] == 'list#') {
         getWheelsList();
@@ -39,201 +42,19 @@ $(document).ready(function() {
     $loading.fadeOut("slow");
 });
 
-var cmake = $('.cmake').val()??'';
-var cyear = $('.cyear').val()??'';
-var cmodel = $('.cmodel').val()??'';
-var csubmodel = $('.csubmodel').val()??'';
-var cchangeBy = '';
-
-// // Year based filters for Makes 
-// $(document).on('change', '.change_year,.change_make,.change_model', function() {
-
-//     $('.make').val($('.change_make').val());
-//     $('.year').val($('.change_year').val());
-//     $('.model').val($('.change_model').val());
-//     $('.submodel').val($('.change_submodel').val());
-
-//     changeBy = $(this).attr('name');
-//     vehicleFilters(changeBy);
-// });
-
-
-
 // Year based filters for Makes 
 $(document).on('change', '.year,.make,.model', function() {
     changeBy = $(this).attr('name');
- 
     vehicleFilters(changeBy);
 });
 
 // Year based filters for Makes 
 $(document).on('change', '.cyear,.cmake,.cmodel', function() {
     cchangeBy = $(this).attr('name');
-    console.log('cchangeBy',cchangeBy)
-    changeVehicleFilters(cchangeBy,$(this));
+    console.log('cchangeBy', cchangeBy)
+    changeVehicleFilters(cchangeBy, $(this));
 });
 
-
-function showAlert(msg) {
-    alert(msg);
-    if ($loading) {
-        $loading.fadeOut("slow");
-    }
-} 
- 
-function vehicleFilters(changeBy = '') {
- 
-    make = $('.make').val();
-    year = $('.year').val();
-    model = $('.model').val();
-    submodel = $('.submodel').val();
-
-    var data = {
-        year: year,
-        make: make,
-        model: model,
-        changeBy: changeBy,
-        accesstoken: accesstoken
-    }
-    console.log(data);
-    $.ajax({
-        url: baseurl + "/api/getVehicles",
-        data: data,
-        type: "POST",
-        success: function(result) {
-            if (result['status'] == false) {
-
-                showAlert(result['message']);
-            }
-            $('.submodel').empty().append('<option disabled selected>Select Submodel</option>');
-
-            if (changeBy == '' || changeBy == 'year' || changeBy == 'make') {
-                $('.model').empty().append('<option disabled selected>Select Model</option>');
-            }
-            if (changeBy == '' || changeBy == 'make') {
-                $('.year').empty().append('<option disabled selected>Select Year</option>');
-            }
-
-            if (changeBy == '') {
-                result.data['make'].map(function(value, key) {
-                    isSelected = (value.make == make) ? 'selected' : '';
-                    $('.make').append('<option value="' + value.make + '" ' + isSelected + '>' + value.make + '</option>');
-                });
-
-                result.data['year'].map(function(value, key) {
-                    isSelected = (value.year == year) ? 'selected' : '';
-                    $('.year').append('<option value="' + value.year + '" ' + isSelected + '>' + value.year + '</option>');
-                });
-                result.data['model'].map(function(value, key) {
-                    isSelected = (value.model == model) ? 'selected' : '';
-                    $('.model').append('<option value="' + value.model + '" ' + isSelected + '>' + value.model + '</option>');
-                });
-                result.data['submodel'].map(function(value, key) {
-                    $('.submodel').append('<option value="' + value.submodel + '-' + value.body + '">' + value.submodel + '-' + value.body + '</option>');
-                });
-            } else {
-                result.data.map(function(value, key) {
-                    if (changeBy == 'make') { 
-                        isSelected = (value.year == year) ? 'selected' : '';
-                        $('.year').append('<option value="' + value.year + '"' + isSelected + '>' + value.year + '</option>');
-                    }
-                    if (changeBy == 'year') {
-                        isSelected = (value.model == model) ? 'selected' : '';
-                        $('.model').append('<option value="' + value.model + '"' + isSelected + '>' + value.model + '</option>');
-                    }
-                    if (changeBy == 'model') {
-                        $('.submodel').append('<option value="' + value.submodel + '-' + value.body + '">' + value.submodel + '-' + value.body + '</option>');
-                    }
-                });
-            }
-
-
-
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-            showAlert('Something Went Wrong!')
-        }
-    });
-}
-
-
-function changeVehicleFilters(cchangeBy = '',elem) { 
-    if(elem != undefined){
-        console.log($(elem).attr('name'))
-        console.log($('.c'+$(elem).attr('name')).val($(elem).val()))
-    }
-    cmake = $('.cmake').val();
-    cyear = $('.cyear').val();
-    cmodel = $('.cmodel').val();
-    csubmodel = $('.csubmodel').val();
-
-    var data = {
-        year: cyear,
-        make: cmake,
-        model: cmodel,
-        changeBy: cchangeBy,
-        accesstoken: accesstoken
-    }
-    console.log('ChangeData',data);
-    $.ajax({
-        url: baseurl + "/api/getVehicles",
-        data: data,
-        type: "POST",
-        success: function(result) {
-            if (result['status'] == false) {
-
-                showAlert(result['message']);
-            }
-            $('.csubmodel').empty().append('<option disabled selected>Select Submodel</option>');
-
-            if (cchangeBy == '' || cchangeBy == 'year' || cchangeBy == 'make') {
-                $('.cmodel').empty().append('<option disabled selected>Select Model</option>');
-            }
-            if (cchangeBy == '' || cchangeBy == 'make') {
-                $('.cyear').empty().append('<option disabled selected>Select Year</option>');
-            }
-
-            if (cchangeBy == '') {
-                result.data['make'].map(function(value, key) {
-                    isSelected = (value.make == make) ? 'selected' : '';
-                    $('.cmake').append('<option value="' + value.make + '" ' + isSelected + '>' + value.make + '</option>');
-                });
-
-                result.data['year'].map(function(value, key) {
-                    isSelected = (value.year == year) ? 'selected' : '';
-                    $('.cyear').append('<option value="' + value.year + '" ' + isSelected + '>' + value.year + '</option>');
-                });
-                result.data['model'].map(function(value, key) {
-                    isSelected = (value.model == model) ? 'selected' : '';
-                    $('.cmodel').append('<option value="' + value.model + '" ' + isSelected + '>' + value.model + '</option>');
-                });
-                result.data['submodel'].map(function(value, key) {
-                    $('.csubmodel').append('<option value="' + value.submodel + '-' + value.body + '">' + value.submodel + '-' + value.body + '</option>');
-                });
-            } else {
-                result.data.map(function(value, key) {
-                    if (cchangeBy == 'make') { 
-                        isSelected = (value.year == year) ? 'selected' : '';
-                        $('.cyear').append('<option value="' + value.year + '"' + isSelected + '>' + value.year + '</option>');
-                    }
-                    if (cchangeBy == 'year') {
-                        isSelected = (value.model == model) ? 'selected' : '';
-                        $('.cmodel').append('<option value="' + value.model + '"' + isSelected + '>' + value.model + '</option>');
-                    }
-                    if (cchangeBy == 'model') {
-                        $('.csubmodel').append('<option value="' + value.submodel + '-' + value.body + '">' + value.submodel + '-' + value.body + '</option>');
-                    }
-                });
-            }
-
-
-
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-            showAlert('Something Went Wrong!')
-        }
-    });
-}
 
 
 $('body').on('click', '.SearchByVehicleGoChange', function(e) {
@@ -242,16 +63,16 @@ $('body').on('click', '.SearchByVehicleGoChange', function(e) {
     actionFrom = 'change';
 
     $('#changeVehicleModal').modal('hide');
- 
+
     var data = {
         year: cyear,
         make: cmake,
         model: cmodel,
         submodel: csubmodel,
         accesstoken: accesstoken
-    } 
+    }
 
-    console.log('Search Data',data);
+    console.log('Search Data', data);
     $loading.show();
     $.ajax({
         url: baseurl + "/api/findVehicle",
@@ -291,10 +112,10 @@ $('.SearchByVehicleGo').click(function() {
         model: model,
         submodel: submodel,
         accesstoken: accesstoken
-    } 
+    }
 
 
-    console.log('Search Data',data);
+    console.log('Search Data', data);
     $loading.show();
     $.ajax({
         url: baseurl + "/api/findVehicle",
@@ -421,9 +242,168 @@ $(document).on('click', '.select-offroad', function() {
             }
         });
     }
-
 });
 
+function showAlert(msg) {
+    alert(msg);
+    if ($loading) {
+        $loading.fadeOut("slow");
+    }
+}
+
+function vehicleFilters(changeBy = '') {
+
+    make = $('.make').val();
+    year = $('.year').val();
+    model = $('.model').val();
+    submodel = $('.submodel').val();
+
+    var data = {
+        year: year,
+        make: make,
+        model: model,
+        changeBy: changeBy,
+        accesstoken: accesstoken
+    }
+    console.log(data);
+    $.ajax({
+        url: baseurl + "/api/getVehicles",
+        data: data,
+        type: "POST",
+        success: function(result) {
+            if (result['status'] == false) {
+
+                showAlert(result['message']);
+            }
+            $('.submodel').empty().append('<option disabled selected>Select Submodel</option>');
+
+            if (changeBy == '' || changeBy == 'year' || changeBy == 'make') {
+                $('.model').empty().append('<option disabled selected>Select Model</option>');
+            }
+            if (changeBy == '' || changeBy == 'make') {
+                $('.year').empty().append('<option disabled selected>Select Year</option>');
+            }
+
+            if (changeBy == '') {
+                result.data['make'].map(function(value, key) {
+                    isSelected = (value.make == make) ? 'selected' : '';
+                    $('.make').append('<option value="' + value.make + '" ' + isSelected + '>' + value.make + '</option>');
+                });
+
+                result.data['year'].map(function(value, key) {
+                    isSelected = (value.year == year) ? 'selected' : '';
+                    $('.year').append('<option value="' + value.year + '" ' + isSelected + '>' + value.year + '</option>');
+                });
+                result.data['model'].map(function(value, key) {
+                    isSelected = (value.model == model) ? 'selected' : '';
+                    $('.model').append('<option value="' + value.model + '" ' + isSelected + '>' + value.model + '</option>');
+                });
+                result.data['submodel'].map(function(value, key) {
+                    $('.submodel').append('<option value="' + value.submodel + '-' + value.body + '">' + value.submodel + '-' + value.body + '</option>');
+                });
+            } else {
+                result.data.map(function(value, key) {
+                    if (changeBy == 'make') {
+                        isSelected = (value.year == year) ? 'selected' : '';
+                        $('.year').append('<option value="' + value.year + '"' + isSelected + '>' + value.year + '</option>');
+                    }
+                    if (changeBy == 'year') {
+                        isSelected = (value.model == model) ? 'selected' : '';
+                        $('.model').append('<option value="' + value.model + '"' + isSelected + '>' + value.model + '</option>');
+                    }
+                    if (changeBy == 'model') {
+                        $('.submodel').append('<option value="' + value.submodel + '-' + value.body + '">' + value.submodel + '-' + value.body + '</option>');
+                    }
+                });
+            }
+
+
+
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            showAlert('Something Went Wrong!')
+        }
+    });
+}
+
+
+function changeVehicleFilters(cchangeBy = '', elem) {
+    if (elem != undefined) {
+        console.log($(elem).attr('name'))
+        console.log($('.c' + $(elem).attr('name')).val($(elem).val()))
+    }
+    cmake = $('.cmake').val();
+    cyear = $('.cyear').val();
+    cmodel = $('.cmodel').val();
+    csubmodel = $('.csubmodel').val();
+
+    var data = {
+        year: cyear,
+        make: cmake,
+        model: cmodel,
+        changeBy: cchangeBy,
+        accesstoken: accesstoken
+    }
+    console.log('ChangeData', data);
+    $.ajax({
+        url: baseurl + "/api/getVehicles",
+        data: data,
+        type: "POST",
+        success: function(result) {
+            if (result['status'] == false) {
+
+                showAlert(result['message']);
+            }
+            $('.csubmodel').empty().append('<option disabled selected>Select Submodel</option>');
+
+            if (cchangeBy == '' || cchangeBy == 'year' || cchangeBy == 'make') {
+                $('.cmodel').empty().append('<option disabled selected>Select Model</option>');
+            }
+            if (cchangeBy == '' || cchangeBy == 'make') {
+                $('.cyear').empty().append('<option disabled selected>Select Year</option>');
+            }
+
+            if (cchangeBy == '') {
+                result.data['make'].map(function(value, key) {
+                    isSelected = (value.make == make) ? 'selected' : '';
+                    $('.cmake').append('<option value="' + value.make + '" ' + isSelected + '>' + value.make + '</option>');
+                });
+
+                result.data['year'].map(function(value, key) {
+                    isSelected = (value.year == year) ? 'selected' : '';
+                    $('.cyear').append('<option value="' + value.year + '" ' + isSelected + '>' + value.year + '</option>');
+                });
+                result.data['model'].map(function(value, key) {
+                    isSelected = (value.model == model) ? 'selected' : '';
+                    $('.cmodel').append('<option value="' + value.model + '" ' + isSelected + '>' + value.model + '</option>');
+                });
+                result.data['submodel'].map(function(value, key) {
+                    $('.csubmodel').append('<option value="' + value.submodel + '-' + value.body + '">' + value.submodel + '-' + value.body + '</option>');
+                });
+            } else {
+                result.data.map(function(value, key) {
+                    if (cchangeBy == 'make') {
+                        isSelected = (value.year == year) ? 'selected' : '';
+                        $('.cyear').append('<option value="' + value.year + '"' + isSelected + '>' + value.year + '</option>');
+                    }
+                    if (cchangeBy == 'year') {
+                        isSelected = (value.model == model) ? 'selected' : '';
+                        $('.cmodel').append('<option value="' + value.model + '"' + isSelected + '>' + value.model + '</option>');
+                    }
+                    if (cchangeBy == 'model') {
+                        $('.csubmodel').append('<option value="' + value.submodel + '-' + value.body + '">' + value.submodel + '-' + value.body + '</option>');
+                    }
+                });
+            }
+
+
+
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            showAlert('Something Went Wrong!')
+        }
+    });
+}
 
 
 function loadOffroadSizeView(data) {
@@ -473,7 +453,6 @@ $(document).on('click', '.select-liftsize', function() {
     loadZipcodeView();
 });
 
-
 function loadZipcodeView() {
     if (zipcode == '') {
         $('#liftsizeModal').modal('hide');
@@ -505,10 +484,7 @@ function loadZipcodeView() {
     } else {
         redirectToList();
     }
-
-}
-
-
+} 
 
 $(document).on('click', '#update-zipcode-button', function() {
 
@@ -520,34 +496,34 @@ $(document).on('click', '#update-zipcode-button', function() {
 function redirectToList() {
 
 
-    if(actionFrom == 'load'){
+    if (actionFrom == 'load') {
 
-    window.location.href = "/products?" +
-        "make=" + make +
-        "&year=" + year +
-        "&model=" + model +
-        "&submodel=" + submodel +
-        "&vehicleid=" + vehicleid +
-        "&offroadid=" + offroadid +
-        "&offroadtype=" + offroadtype +
-        "&liftsize=" + liftsize +
-        "&flag=" + flag +
-        "&zipcode=" + zipcode +
-        "&pagename=list";
-    }else{
+        window.location.href = "/products?" +
+            "make=" + make +
+            "&year=" + year +
+            "&model=" + model +
+            "&submodel=" + submodel +
+            "&vehicleid=" + vehicleid +
+            "&offroadid=" + offroadid +
+            "&offroadtype=" + offroadtype +
+            "&liftsize=" + liftsize +
+            "&flag=" + flag +
+            "&zipcode=" + zipcode +
+            "&pagename=list";
+    } else {
 
-    window.location.href = "/products?" +
-        "make=" + cmake +
-        "&year=" + cyear +
-        "&model=" + cmodel +
-        "&submodel=" + csubmodel +
-        "&vehicleid=" + vehicleid +
-        "&offroadid=" + offroadid +
-        "&offroadtype=" + offroadtype +
-        "&liftsize=" + liftsize +
-        "&flag=" + flag +
-        "&zipcode=" + zipcode +
-        "&pagename=list";
+        window.location.href = "/products?" +
+            "make=" + cmake +
+            "&year=" + cyear +
+            "&model=" + cmodel +
+            "&submodel=" + csubmodel +
+            "&vehicleid=" + vehicleid +
+            "&offroadid=" + offroadid +
+            "&offroadtype=" + offroadtype +
+            "&liftsize=" + liftsize +
+            "&flag=" + flag +
+            "&zipcode=" + zipcode +
+            "&pagename=list";
     }
 }
 
@@ -596,7 +572,7 @@ function getWheelsList(paginateurl = '') {
         }
     }
 
-    console.log('Load Wheels',data)
+    console.log('Load Wheels', data)
     if (qryData['pagename'] == 'list') {
         $.ajax({
             url: url,
@@ -716,15 +692,12 @@ function getVisualiserModal(vehicleData = '', vehicleColors = '') {
           `;
 
     $('#Visualiser-Section').html(modalStr);
-}
+} 
+
+function changeVehicleModal() {
 
 
-
-function changeVehicleModal()
-{
-
-
-    var modalStr=`
+    var modalStr = `
                             <div class="modal fade " id="changeVehicleModal" role="dialog">
                                 <div class="modal-dialog wheel-view">
                                     <div class="modal-content">
@@ -787,11 +760,7 @@ function changeVehicleModal()
                             </div>
     `;
     $('#ChangeVehicleSection').html(modalStr);
-}
-
-
-
- 
+} 
 
 // change the cars by selected color
 $('body').on('click', '.visualiser-car-color', function(e) {
@@ -800,11 +769,8 @@ $('body').on('click', '.visualiser-car-color', function(e) {
     $('.visualiser-color-selected').removeClass('visualiser-color-selected');
     $(this).addClass('visualiser-color-selected');
     $('#vehicle-image').attr('src', baseurl + "/" + imagename);
-
-
 });
-
-
+ 
 
 function getWheelByVehicle(key = '0', isShow) {
 
@@ -824,7 +790,7 @@ function getWheelByVehicle(key = '0', isShow) {
         accesstoken: accesstoken,
     };
 
-    console.log(partno,data)
+    console.log(partno, data)
 
     $(".waiting-loader").show();
     $.ajax({
@@ -862,18 +828,17 @@ function getWheelByVehicle(key = '0', isShow) {
                 showAlert(result['message']);
             }
 
-                $loading.fadeOut("slow");
+            $loading.fadeOut("slow");
         },
         error: function(jqXHR, textStatus, errorThrown) {
             showAlert('Something Went Wrong!')
             $loading.fadeOut("slow");
         }
     });
-
 }
 
 function APIWheelMapping(key, isShow = null) {
-        console.log(boxes);
+    console.log(boxes);
     if (boxes == 'undefined' || boxes == null) {
         getWheelByVehicle(key, isShow);
     } else {
@@ -883,7 +848,7 @@ function APIWheelMapping(key, isShow = null) {
             //         getVisualiserModal();
             //         $("#VisualiserModal").modal("show");
             // }
-            if(allData['carimage'] == null){
+            if (allData['carimage'] == null) {
 
                 showAlert('Vehicle Image Not Found!!')
                 $("#VisualiserModal").modal("hide");
@@ -933,12 +898,12 @@ function APIWheelMapping(key, isShow = null) {
         } else {
 
             // $("#VisualiserModal").modal("
-            if(allData['carimage'] == null){
+            if (allData['carimage'] == null) {
 
                 showAlert('Vehicle Image Not Found!!')
                 $("#VisualiserModal").modal("hide");
             }
-            
+
             $('#vehicle-image').attr('src', allData['carimage']);
             $('#visualiser-wheel-front').attr('src', $('#frontback-image-' + key).val());
             $('#visualiser-wheel-back').attr('src', $('#frontback-image-' + key).val());
@@ -946,61 +911,55 @@ function APIWheelMapping(key, isShow = null) {
             $loading.fadeOut("slow");
         }
     }
-
-
 }
+ 
 
-
-
-function ApplyOnCar(partno,vehicleid,vehicleDetails={}){
+function ApplyOnCar(partno, vehicleid, vehicleDetails = {}) {
 
     $(".waiting-loader").show();
-        var data={
-            wheelpartno:partno,
-            vehicleid:vehicleid,
-            accesstoken:accesstoken
+    var data = {
+        wheelpartno: partno,
+        vehicleid: vehicleid,
+        accesstoken: accesstoken
+    }
+    console.log(vehicleDetails, Object.keys(vehicleDetails).length)
+    if (Object.keys(vehicleDetails).length > 0) {
+        var data = {
+            wheelpartno: partno,
+            make: vehicleDetails['make'],
+            year: vehicleDetails['year'],
+            model: vehicleDetails['model'],
+            submodel: vehicleDetails['submodel'],
+            accesstoken: accesstoken
         }
-        console.log(vehicleDetails,Object.keys(vehicleDetails).length)
-        if(Object.keys(vehicleDetails).length > 0){
-            var data={
-                wheelpartno:partno,
-                make:vehicleDetails['make'],
-                year:vehicleDetails['year'],
-                model:vehicleDetails['model'],
-                submodel:vehicleDetails['submodel'], 
-                accesstoken:accesstoken
-            }
-        }
-        $.ajax({
-            url: baseurl + '/api/WheelByVehicle',
-            data: data,
-            type: "POST",
-            success: function(result) {
- 
-                if (result['status'] == true) { 
-                    allData = result['data'];
-                    if (typeof allData['position'] != 'object') {
-                        boxes = JSON.parse(allData['position']);
-                    } else {
-                        boxes = allData['position'];
-                    }
-                    getVisualiserModal(result['data']['vehicleimage'], result['data']['vehiclecolors'])
-                    $('#VisualiserModal').modal('show');
-                    APIWheelMapping('0');   
-                } else { 
-                    $loading.fadeOut("slow");
-                    showAlert(result['message']);
+    }
+    $.ajax({
+        url: baseurl + '/api/WheelByVehicle',
+        data: data,
+        type: "POST",
+        success: function(result) {
+
+            if (result['status'] == true) {
+                allData = result['data'];
+                if (typeof allData['position'] != 'object') {
+                    boxes = JSON.parse(allData['position']);
+                } else {
+                    boxes = allData['position'];
                 }
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                showAlert('Something Went Wrong!')
+                getVisualiserModal(result['data']['vehicleimage'], result['data']['vehiclecolors'])
+                $('#VisualiserModal').modal('show');
+                APIWheelMapping('0');
+            } else {
+                $loading.fadeOut("slow");
+                showAlert(result['message']);
             }
-        });
-
-
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            showAlert('Something Went Wrong!')
+        }
+    });
 }
-
-
+ 
 
 $('body').on('click', '.pagination a', function(e) {
     e.preventDefault();
@@ -1068,8 +1027,6 @@ $('body').on('click', '.visualiser-diameter-up', function(e) {
 
         diameterStepCount = diameterStepCount + 1;
     }
-
-
 });
 
 $('body').on('click', '.visualiser-diameter-down', function(e) {
@@ -1112,5 +1069,4 @@ $('body').on('click', '.visualiser-diameter-down', function(e) {
 
         diameterStepCount = diameterStepCount - 1;
     }
-
 });
