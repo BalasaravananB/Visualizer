@@ -280,7 +280,7 @@
                         @endforelse
                 </div>
 
-                <div class="row pro-pagination">
+                <div class="row pro-pagination visualiser-pagination">
                     <div class="col-sm-6 pagi-left">
                         <p>{{(@$products->total())?@$products->total().' Wheels Found':''}} </p>
                     </div>

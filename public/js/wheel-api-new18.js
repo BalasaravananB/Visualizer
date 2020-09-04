@@ -1,6 +1,8 @@
 var baseurl = "http://web9.vtdns.net";
 // var baseurl = "http://localhost:8001";
 
+var inventoryurl = "http://inventory.discountedwheelwarehouse.net";
+
 var boxes = null;
 var allData;
 var widthAdjusted = true;
@@ -961,7 +963,7 @@ function ApplyOnCar(partno, vehicleid, vehicleDetails = {}) {
 }
  
 
-$('body').on('click', '.pagination a', function(e) {
+$('body').on('click', '.visualiser-pagination .pagination a', function(e) {
     e.preventDefault();
     $loading.show();
     var url = $(this).attr('href');
@@ -1070,3 +1072,52 @@ $('body').on('click', '.visualiser-diameter-down', function(e) {
         diameterStepCount = diameterStepCount - 1;
     }
 });
+
+
+function getProductAvailability(partno='',zipcode=''){ 
+    var data={
+        partno:partno,
+        zipcode:zipcode
+    }
+     $.ajax({
+            url: inventoryurl + "/api/getProductAvailability",
+            data: data,
+            type: "POST",
+            success: function(result) {
+                if (result['status'] == false) {
+                    showAlert(result['message']);
+                } else {
+
+                    $loading.fadeOut('slow');
+                     console.log(result)
+                }
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                showAlert('Something Went Wrong!')
+            }
+        });
+}
+
+function CheckNearByDropshippers(radius='',zipcode=''){ 
+    var data={
+        radius:radius,
+        zipcode:zipcode
+    }
+     $.ajax({
+            url: inventoryurl + "/api/CheckNearByDropshippers",
+            data: data,
+            type: "POST",
+            success: function(result) {
+                if (result['status'] == false) {
+                    showAlert(result['message']);
+                } else {
+
+                    $loading.fadeOut('slow');
+                     console.log(result)
+                }
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                showAlert('Something Went Wrong!')
+            }
+        });
+}
