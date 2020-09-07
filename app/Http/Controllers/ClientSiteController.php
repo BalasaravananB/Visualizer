@@ -112,7 +112,7 @@ class ClientSiteController extends Controller
                 if($request->siteurl != $client->siteurl)
                     $data['accesstoken']=$this->createAccessToken($request->siteurl);
                 
-                if(ClientSite::where('id', '!=',$id)->where('accesstoken',$data['accesstoken'])->first()){
+                if(ClientSite::where('id', '!=',$id)->where('accesstoken',@$data['accesstoken'])->first()){
                     return back()->with('error','This Site Already Exists!!');
                 }
 

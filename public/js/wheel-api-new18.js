@@ -14,7 +14,7 @@ var year = $('.year').val();
 var model = $('.model').val();
 var submodel = $('.submodel').val();
 var changeBy = '';
- 
+
 var vehicle = '';
 var vehicleid = '';
 var offroadid = '';
@@ -486,7 +486,7 @@ function loadZipcodeView() {
     } else {
         redirectToList();
     }
-} 
+}
 
 $(document).on('click', '#update-zipcode-button', function() {
 
@@ -694,7 +694,7 @@ function getVisualiserModal(vehicleData = '', vehicleColors = '') {
           `;
 
     $('#Visualiser-Section').html(modalStr);
-} 
+}
 
 function changeVehicleModal() {
 
@@ -762,7 +762,7 @@ function changeVehicleModal() {
                             </div>
     `;
     $('#ChangeVehicleSection').html(modalStr);
-} 
+}
 
 // change the cars by selected color
 $('body').on('click', '.visualiser-car-color', function(e) {
@@ -772,7 +772,7 @@ $('body').on('click', '.visualiser-car-color', function(e) {
     $(this).addClass('visualiser-color-selected');
     $('#vehicle-image').attr('src', baseurl + "/" + imagename);
 });
- 
+
 
 function getWheelByVehicle(key = '0', isShow) {
 
@@ -914,7 +914,7 @@ function APIWheelMapping(key, isShow = null) {
         }
     }
 }
- 
+
 
 function ApplyOnCar(partno, vehicleid, vehicleDetails = {}) {
 
@@ -961,7 +961,7 @@ function ApplyOnCar(partno, vehicleid, vehicleDetails = {}) {
         }
     });
 }
- 
+
 
 $('body').on('click', '.visualiser-pagination .pagination a', function(e) {
     e.preventDefault();
@@ -1074,50 +1074,50 @@ $('body').on('click', '.visualiser-diameter-down', function(e) {
 });
 
 
-function getProductAvailability(partno='',zipcode=''){ 
-    var data={
-        partno:partno,
-        zipcode:zipcode
+function getProductAvailability(partno = '', zipcode = '') {
+    var data = {
+        partno: partno,
+        zipcode: zipcode
     }
-     $.ajax({
-            url: inventoryurl + "/api/getProductAvailability",
-            data: data,
-            type: "POST",
-            success: function(result) {
-                if (result['status'] == false) {
-                    showAlert(result['message']);
-                } else {
+    $.ajax({
+        url: inventoryurl + "/api/getProductAvailability",
+        data: data,
+        type: "POST",
+        success: function(result) {
+            if (result['status'] == false) {
+                showAlert(result['message']);
+            } else {
 
-                    $loading.fadeOut('slow');
-                     console.log(result)
-                }
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                showAlert('Something Went Wrong!')
+                $loading.fadeOut('slow');
+                console.log(result)
             }
-        });
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            showAlert('Something Went Wrong!')
+        }
+    });
 }
 
-function CheckNearByDropshippers(radius='',zipcode=''){ 
-    var data={
-        radius:radius,
-        zipcode:zipcode
+function CheckNearByDropshippers(radius = '', zipcode = '') {
+    var data = {
+        radius: radius,
+        zipcode: zipcode
     }
-     $.ajax({
-            url: inventoryurl + "/api/CheckNearByDropshippers",
-            data: data,
-            type: "POST",
-            success: function(result) {
-                if (result['status'] == false) {
-                    showAlert(result['message']);
-                } else {
+    $.ajax({
+        url: inventoryurl + "/api/CheckNearByDropshippers",
+        data: data,
+        type: "POST",
+        success: function(result) {
+            if (result['status'] == false) {
+                showAlert(result['message']);
+            } else {
 
-                    $loading.fadeOut('slow');
-                     console.log(result)
-                }
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                showAlert('Something Went Wrong!')
+                $loading.fadeOut('slow');
+                console.log(result)
             }
-        });
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            showAlert('Something Went Wrong!')
+        }
+    });
 }
